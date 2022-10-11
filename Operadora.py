@@ -23,7 +23,7 @@ def __init__():
 
 #Method to open a file
 def abrirArchivo():
-        
+        cuadro.delete("1.0","end")
         try:  
             global archivo1   
             archivo1 = filedialog.askopenfilename(title="Abrir archivo", initialdir="C:/", filetypes=(("txt files",".txt"),("Todos los archivos",".*")))
@@ -44,7 +44,28 @@ def abrirArchivo():
 
 #Method for new document 
 def nuevo():
-    pass
+    nuevo = tk.Tk()
+    nuevo.geometry("500x150")
+    nuevo["bg"]='#222831'
+    nuevo.title("Guardar como")
+    fontStylelbl = tkFont.Font(family='Open Sans Light', size='14', weight='bold')
+    lbl1=tk.Label(nuevo, text="Elija el nombre de su archivo", font=fontStylelbl, fg="#DDDDDD", bg="#222831").place(x=25, y=25)
+    entry1=tk.Entry(nuevo, font=fontStylelbl, fg="#222831", bg="#DDDDDD", width="30")
+    entry1.place(x=25, y=65)
+
+
+    def botonguardar():
+        global nombrearchivo
+        nombrearchivo=entry1.get()
+        nuevoarchivo1=open(nombrearchivo+".txt","w+",encoding='utf-8')
+        nuevoarchivo1.writelines(cuadro.get("1.0","end-1c"))
+        print(nombrearchivo)
+        MessageBox.showinfo("Guardar como", "Archivo guardado correctamente")
+        nuevo.destroy()
+        cuadro.delete("1.0","end")
+    bttn1 = tk.Button(nuevo, text="Guardar como", font=fontStylelbl, command=botonguardar, fg="#30475E", bg="#DDDDDD").place(x=325, y=60)
+    
+
 
 
 
