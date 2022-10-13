@@ -6,9 +6,9 @@ from tkinter import filedialog
 from tkinter import scrolledtext as st
 import numpy as np
 from tkinter import messagebox as MessageBox
-from lib2to3.pgen2 import token
 import ntpath
-import os
+import os,time
+import pyautogui as pag
 from analizador import Analizador
 
 
@@ -229,17 +229,36 @@ lblincial = tk.Label(inicio, width=138, height=3, font=('Open Sans Light', 10), 
 panellateral = tk.Label(inicio, width=25, height=31, font=('Open Sans Light', 10), fg="#FF8087", bg="#FF8087").place(x=25, y=210)
 #cuadro = tk.Label(inicio, width=110, height=31, font=('Open Sans Light', 10), fg="#000000", bg="#FF8087").place(x=250, y=210) 
 fontStyle= tkFont.Font(family='Open Sans Light', size='30', weight='bold')
-fontStylebttn = tkFont.Font(family='Open Sans Light', size='14', weight='bold')
-lbl1 = tk.Label(inicio, width=46, height=2, text="Compilador", font=fontStyle, fg="#DDDDDD", bg="#30475E").place(x=25, y=25)
-bttn10 = tk.Button(inicio, text="Nuevo", width=13, height='2', font=fontStylebttn, command=nuevo, fg="#30475E", bg="#DDDDDD").place(x=45, y=215)
-bttn1 = tk.Button(inicio, text="Abrir Archivo", width=13, height='2', font=fontStylebttn, command=abrirArchivo, fg="#30475E", bg="#DDDDDD").place(x=45, y=285)
-bttngurdar = tk.Button(inicio, text="Guardar", width=13,height='2', font=fontStylebttn, command=guardar, fg="#30475E", bg="#DDDDDD").place(x=45, y=355)
-bttn3 = tk.Button(inicio, text="Guardar como",width=13,height='2', font=fontStylebttn, command=guardarcomo, fg="#30475E", bg="#DDDDDD").place(x=45, y=425)
-bttn4 = tk.Button(inicio, text="Analizar Archivo",width=13,height='2', font=fontStylebttn, command=analizar, fg="#30475E", bg="#DDDDDD").place(x=45, y=495)
-bttn5 = tk.Button(inicio, text="Ver errores",width=13,height='2', font=fontStylebttn, command=errores, fg="#30475E", bg="#DDDDDD").place(x=45, y=565)
-bttn6 = tk.Button(inicio, text="Salir", width=13,height='2', font=fontStylebttn, command=salirPro, fg="#30475E", bg="#DDDDDD").place(x=45, y=635)
-bttn7 = tk.Button(inicio, text="Manual de usuario", width=15, font=fontStylebttn, command=manualusuario, fg="#30475E", bg="#DDDDDD").place(x=260, y=147)
-bttn8 = tk.Button(inicio, text="Manual Técnico", width=15, font=fontStylebttn, command=manualtecnico, fg="#30475E", bg="#DDDDDD").place(x=500, y=147)
-bttn9 = tk.Button(inicio, text="Temas de Ayuda", width=15, font=fontStylebttn, command=info, fg="#30475E", bg="#DDDDDD").place(x=750, y=147)
 
+fontStylebttn = tkFont.Font(family='Open Sans Light', size='14', weight='bold')
+fontStylelbl = tkFont.Font(family='Open Sans Light', size='8')
+# cuadrox=tk.Label(inicio, text=("Linea: "), font=fontStylelbl, fg="#DDDDDD", bg="#30475E").place(x=990, y=690)
+# cuadroy=tk.Label(inicio, text=("Columna: "), font=fontStylelbl, fg="#DDDDDD", bg="#30475E").place(x=1050, y=690)
+lbl1 = tk.Label(inicio, width=46, height=2, text="Compilador", font=fontStyle, fg="#DDDDDD", bg="#30475E").place(x=25, y=25)
+bttn_new = tk.Button(inicio, text="Nuevo", width=13, height='2', font=fontStylebttn, command=nuevo, fg="#30475E", bg="#DDDDDD").place(x=45, y=215)
+bttn_open_file = tk.Button(inicio, text="Abrir Archivo", width=13, height='2', font=fontStylebttn, command=abrirArchivo, fg="#30475E", bg="#DDDDDD").place(x=45, y=285)
+bttn_save = tk.Button(inicio, text="Guardar", width=13,height='2', font=fontStylebttn, command=guardar, fg="#30475E", bg="#DDDDDD").place(x=45, y=355)
+bttn_save_as = tk.Button(inicio, text="Guardar como",width=13,height='2', font=fontStylebttn, command=guardarcomo, fg="#30475E", bg="#DDDDDD").place(x=45, y=425)
+bttn_analyze = tk.Button(inicio, text="Analizar Archivo",width=13,height='2', font=fontStylebttn, command=analizar, fg="#30475E", bg="#DDDDDD").place(x=45, y=495)
+bttn_errors = tk.Button(inicio, text="Ver errores",width=13,height='2', font=fontStylebttn, command=errores, fg="#30475E", bg="#DDDDDD").place(x=45, y=565)
+bttn_exit = tk.Button(inicio, text="Salir", width=13,height='2', font=fontStylebttn, command=salirPro, fg="#30475E", bg="#DDDDDD").place(x=45, y=635)
+bttn_usermanual = tk.Button(inicio, text="Manual de usuario", width=15, font=fontStylebttn, command=manualusuario, fg="#30475E", bg="#DDDDDD").place(x=260, y=147)
+bttn_technicalmanual = tk.Button(inicio, text="Manual Técnico", width=15, font=fontStylebttn, command=manualtecnico, fg="#30475E", bg="#DDDDDD").place(x=500, y=147)
+bttn_help = tk.Button(inicio, text="Temas de Ayuda", width=15, font=fontStylebttn, command=info, fg="#30475E", bg="#DDDDDD").place(x=750, y=147)
+posx=0
+posy=0
+def ShowPosition(event):
+    pos=cuadro.index(INSERT)
+    pos2=pos.split(".")
+    posx=pos2[0]
+    posy=pos2[1]
+    cuadroy=tk.Label(inicio, width=16, text=("Fila: "+posx+ " Columna: "+posy), font=fontStylelbl, fg="#DDDDDD", bg="#30475E").place(x=1000, y=690)
+def ShowPosition2(event):
+    pos=cuadro.index(INSERT)
+    pos2=pos.split(".")
+    posx=pos2[0]
+    posy=pos2[1]
+    cuadroy=tk.Label(inicio, width=16, text=("Fila: "+posx+ " Columna: "+str(int(posy)+1)), font=fontStylelbl, fg="#DDDDDD", bg="#30475E").place(x=1000, y=690)
+cuadro.bind('<Button-1>', ShowPosition)
+cuadro.bind('<Key>', ShowPosition2)
 inicio.mainloop()
