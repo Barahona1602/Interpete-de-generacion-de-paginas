@@ -6,40 +6,50 @@ import webbrowser
 
 
 class L_tokens(Enum):
+    
+    #Etiquetas 
+    TK_E_COLOCACION = "Colocacion"
+    TK_E_ETIQUETA = "Etiqueta"
+    TK_E_BOTON = "Boton"
+    TK_E_CHECK = "Check"
+    TK_E_RADIOBOTON = "RadioBoton"
+    TK_E_TEXTO = "Texto"
+    TK_E_AREATEXTO = "AreaTexto"
+    TK_E_CLAVE = "Clave"
+    TK_E_CONTENEDOR = "Contenedor"
+    TK_TEXTO = "[a-zA-Z,À-ÿ\u00f1\u00d1,'+'-'-',''.'*',0.0-9.0,':','%','=','/','^','√','(',')','âˆš']*"
+    TK_E_CONTROLES="Controles"
+    TK_E_PROPIEDADES = "propiedades"
+   
+   #Símbolos
     TK_MENOR = "<"
-    TK_E_NUMERO = "Numero"
     TK_MAYOR = ">"
     TK_NUMERO = "[0-9]*[.]?[0-9]+"
-    TK_BARRAINV = "/"
-    TK_E_OPERACION = "Operacion"
-    TK_IGUAL = "="
-    TK_OP_SUMA = "SUMA",
-    TK_OP_RESTA = "RESTA"
-    TK_OP_MULTIPLICACION= "MULTIPLICACION"
-    TK_OP_DIVISION= "DIVISION"
-    TK_OP_POTENCIA="POTENCIA"
-    TK_OP_RAIZ="RAIZ"
-    TK_OP_INVERSO="INVERSO"
-    TK_OP_SENO="SENO"
-    TK_OP_COSENO="COSENO"
-    TK_OP_TANGENTE="TANGENTE"
-    TK_OP_MOD="MOD"
-    TK_E_TIPO = "Tipo"
-    TK_E_TEXTO = "Texto"
-    TK_TEXTO = "[a-zA-Z,À-ÿ\u00f1\u00d1,'+'-'-',''.'*',0.0-9.0,':','%','=','/','^','√','(',')','âˆš']*"
-    TK_E_FUNCION = "Funcion"
-    TK_ESCRIBIR = "ESCRIBIR"
-    TK_E_TITULO = "Titulo"
-    TK_TITULO = "[a-zA-Z,À-ÿ\u00f1\u00d1,'+'-'-',''.'*',0.0-9.0,':','%','=','/','^','√','(',')','âˆš']*"
-    TK_E_COLOR = "Color"
-    TK_COLOR = "[a-z]*"
-    TK_E_TAMANIO = "Tamanio"
-    TK_TAMANIO ="[0-9]*"
-    TK_E_DESCRIPCION="Descripcion"
-    TK_DESCRIPCION = "TEXTO"
-    TK_E_CONTENIDO = "Contenido"
-    TK_CONTENIDO = "TIPO"
-    TK_E_ESTILO = "Estilo"
+    TK_COMILLAS = '"'
+    TK_PUNTOYCOMA = ";"
+    TK_PUNTO = "."
+    TK_COMA = ","
+    TK_A_PARENTESIS = "("
+    TK_C_PARENTESIS = ")"
+    TK_APERTURA = "<!--"
+    TK_CIERRE = "-->"
+
+    #Set y propiedades
+    TK_SETANCHO="setAncho"
+    TK_SETALTO = "setAlto"
+    TK_SETCOLORFONDO = "setColorFondo"
+    TK_COLORFONDO = "[0-9]+[,]?[0-9]+[,]?[0-9]+"
+    TK_SETTEXTO = "setTexto"
+    TK_SETALINEACION = "setAlineacion"
+    TK_SETCOLORLETRA = "setColorLetra"
+    TK_SETMARCADA = "setMarcada"
+    TK_SETGRUPO = "setGrupo"
+    TK_SETPOSICION = "setPosicion"
+    TK_ADD = "add"
+    TK_THIS = "this"
+    TK_ALINEACION = "[Centro|Izquierda|Derecha]"
+
+
 
 
 class Analizador:

@@ -26,7 +26,7 @@ def abrirArchivo():
         cuadro.delete("1.0","end")
         try:  
             global archivo1   
-            archivo1 = filedialog.askopenfilename(title="Abrir archivo", initialdir="C:/", filetypes=(("txt files",".txt"),("Todos los archivos",".*")))
+            archivo1 = filedialog.askopenfilename(title="Abrir archivo", initialdir="C:/", filetypes=(("gpw files",".gpw"),("Todos los archivos",".*")))
         except:
             print("No se agregaron archivos")
             global nombrearchivo
@@ -143,6 +143,17 @@ def analizar():
 
 
 
+#Method to display tokens
+def tokens():
+    pass
+
+
+
+
+#---------------------------------------------------
+#---------------------------------------------------
+
+
 
 #Method to display errors
 def errores():
@@ -153,6 +164,8 @@ def errores():
 
 #---------------------------------------------------
 #---------------------------------------------------
+
+
 
 
 #Exit command
@@ -219,14 +232,15 @@ def info():
 inicio = tk.Tk()
 inicio.title("Proyecto 1")
 inicio["bg"]="#222831"
-inicio.geometry("1160x735")
+inicio.geometry("1160x790")
+inicio.resizable(0,0)
 
 
 #labels and buttons
-cuadro = tk.Text(inicio, width=126, height=31, font=('Open Sans Light', 10), fg="#000000", bg="#FF8087")
+cuadro = tk.Text(inicio, width=126, height=35, font=('Open Sans Light', 10), fg="#000000", bg="#FF8087")
 cuadro.place(x=250, y=210)
 lblincial = tk.Label(inicio, width=138, height=3, font=('Open Sans Light', 10), fg="#FF8087", bg="#FF8087").place(x=25, y=140)
-panellateral = tk.Label(inicio, width=25, height=31, font=('Open Sans Light', 10), fg="#FF8087", bg="#FF8087").place(x=25, y=210)
+panellateral = tk.Label(inicio, width=25, height=35, font=('Open Sans Light', 10), fg="#FF8087", bg="#FF8087").place(x=25, y=210)
 #cuadro = tk.Label(inicio, width=110, height=31, font=('Open Sans Light', 10), fg="#000000", bg="#FF8087").place(x=250, y=210) 
 fontStyle= tkFont.Font(family='Open Sans Light', size='30', weight='bold')
 
@@ -239,26 +253,34 @@ bttn_new = tk.Button(inicio, text="Nuevo", width=13, height='2', font=fontStyleb
 bttn_open_file = tk.Button(inicio, text="Abrir Archivo", width=13, height='2', font=fontStylebttn, command=abrirArchivo, fg="#30475E", bg="#DDDDDD").place(x=45, y=285)
 bttn_save = tk.Button(inicio, text="Guardar", width=13,height='2', font=fontStylebttn, command=guardar, fg="#30475E", bg="#DDDDDD").place(x=45, y=355)
 bttn_save_as = tk.Button(inicio, text="Guardar como",width=13,height='2', font=fontStylebttn, command=guardarcomo, fg="#30475E", bg="#DDDDDD").place(x=45, y=425)
-bttn_analyze = tk.Button(inicio, text="Analizar Archivo",width=13,height='2', font=fontStylebttn, command=analizar, fg="#30475E", bg="#DDDDDD").place(x=45, y=495)
-bttn_errors = tk.Button(inicio, text="Ver errores",width=13,height='2', font=fontStylebttn, command=errores, fg="#30475E", bg="#DDDDDD").place(x=45, y=565)
-bttn_exit = tk.Button(inicio, text="Salir", width=13,height='2', font=fontStylebttn, command=salirPro, fg="#30475E", bg="#DDDDDD").place(x=45, y=635)
+bttn_analyze = tk.Button(inicio, text="Generar Página",width=13,height='2', font=fontStylebttn, command=analizar, fg="#30475E", bg="#DDDDDD").place(x=45, y=495)
+bttn_tokens = tk.Button(inicio, text="Ver tokens",width=13,height='2', font=fontStylebttn, command=errores, fg="#30475E", bg="#DDDDDD").place(x=45, y=565)
+bttn_errors = tk.Button(inicio, text="Ver errores",width=13,height='2', font=fontStylebttn, command=errores, fg="#30475E", bg="#DDDDDD").place(x=45, y=635)
+bttn_exit = tk.Button(inicio, text="Salir", width=13,height='2', font=fontStylebttn, command=salirPro, fg="#30475E", bg="#DDDDDD").place(x=45, y=705)
 bttn_usermanual = tk.Button(inicio, text="Manual de usuario", width=15, font=fontStylebttn, command=manualusuario, fg="#30475E", bg="#DDDDDD").place(x=260, y=147)
 bttn_technicalmanual = tk.Button(inicio, text="Manual Técnico", width=15, font=fontStylebttn, command=manualtecnico, fg="#30475E", bg="#DDDDDD").place(x=500, y=147)
 bttn_help = tk.Button(inicio, text="Temas de Ayuda", width=15, font=fontStylebttn, command=info, fg="#30475E", bg="#DDDDDD").place(x=750, y=147)
 posx=0
 posy=0
-def ShowPosition(event):
+current_index = tk.StringVar()
+lab = tk.Label(inicio, textvar=current_index)
+
+
+def ButtonPos(event):
+    pos=cuadro.index(tk.INSERT)
+    pos2=pos.split(".")
+    posx=pos2[0]
+    posy=pos2[1]
+    tk.Label(inicio, width=16, text=("Fila: "+posx+ " Columna: "+posy), font=fontStylelbl, fg="#DDDDDD", bg="#30475E").place(x=1000, y=750)
+cuadro.bind('<ButtonRelease-1>', ButtonPos)
+
+def KeyPos(event):
     pos=cuadro.index(INSERT)
     pos2=pos.split(".")
     posx=pos2[0]
     posy=pos2[1]
-    cuadroy=tk.Label(inicio, width=16, text=("Fila: "+posx+ " Columna: "+posy), font=fontStylelbl, fg="#DDDDDD", bg="#30475E").place(x=1000, y=690)
-def ShowPosition2(event):
-    pos=cuadro.index(INSERT)
-    pos2=pos.split(".")
-    posx=pos2[0]
-    posy=pos2[1]
-    cuadroy=tk.Label(inicio, width=16, text=("Fila: "+posx+ " Columna: "+str(int(posy)+1)), font=fontStylelbl, fg="#DDDDDD", bg="#30475E").place(x=1000, y=690)
-cuadro.bind('<Button-1>', ShowPosition)
-cuadro.bind('<Key>', ShowPosition2)
+    tk.Label(inicio, width=16, text=("Fila: "+posx+ " Columna: "+posy), font=fontStylelbl, fg="#DDDDDD", bg="#30475E").place(x=1000, y=750)
+cuadro.bind('<KeyRelease>', KeyPos)
+
+
 inicio.mainloop()
