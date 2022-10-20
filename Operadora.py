@@ -133,7 +133,7 @@ def guardarcomo():
 #Method to analyze 
 def analizar():
     Analizador(archivoimp=archivo1).compile()
-    Analizador.htmlanalizar()
+    #Analizador.htmlanalizar()
 
 
 
