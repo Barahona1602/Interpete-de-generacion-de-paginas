@@ -54,12 +54,12 @@ class L_tokens(Enum):
 
 class Analizador:
     def __init__(self, archivoimp):
-        self.cadena = ""
         self.linea = 0
-        self.columna = 0  
-        self.lista_cadena = []
+        self.columna = 0
         self.tmp_cadena = ""
+        self.lista_cadena = []
         self.archivoimp=archivoimp
+        self.EstadoActual = 0
         self.op=[]
         self.num=0
         global result
@@ -79,19 +79,6 @@ class Analizador:
         global errores 
         errores=[]
 
-
-
-    def quitar(self, _cadena :str, _num : int):
-        _tmp = ""
-        count = 0
-        for i in _cadena:
-            if count >= _num:
-                _tmp += i
-            else:
-                self.tmp_cadena += i 
-            count += 1
-        return _tmp
-
     def aumentarLinea(self):
         _tmp = self.lista_cadena[self.linea]
         #print(_tmp , " == ", self.tmp_cadena)
@@ -100,707 +87,288 @@ class Analizador:
             self.tmp_cadena = ""
             self.columna = 0 
 
-    def esLaetiqueta(self, _cadena : str, _etiqueta : str):
-        tmp = ""
+    def verificarToken(self, entrada:str, token:str):
         count = 0
-        for i in _cadena:
-            if count < len(_etiqueta):
-                tmp += i
+
+        for i in range(0, len(token)):
+            if count >= len(entrada):
+                return {"result":None, "count":count}
+            if entrada[i] != token[i]:
+                return {"result":None, "count":count}
             count += 1
 
-        if tmp == _etiqueta:
-            return True
-        else:
-            return False
+        nueva_cadena = ""
+        count_1 = 0
+        lista = entrada.split(token)
+        for j in lista:
+            if count_1 == len(lista) - 1:
+                nueva_cadena += j
+            elif count_1 > 0:
+                nueva_cadena += j + token
 
-    def Numero(self, _cadena : str):
-        tokens = [
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_NUMERO.value, # Numero
-            L_tokens.TK_MAYOR.value,    # >
-            L_tokens.TK_NUMERO.value,         # 10
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_E_NUMERO.value, # Numero
-            L_tokens.TK_MAYOR.value     # >
-        ]
-        _numero = ""
+            count_1 += 1
 
-        for i in tokens:
-            try:
-                patron = re.compile(f'^{i}')
-                s = patron.search(_cadena)
-                global errorl
-                global errorc
-                global lex
-                errorl=""
-                errorc=""
-                lex=""
-                print("| ", self.linea, " | ", self.columna, " | ", s.group())
-                self.columna += int(s.end())
+        self.tmp_cadena += token
 
-                # GUARDAR EL TOKEN
-                if i == L_tokens.TK_NUMERO.value:
-                    _numero = s.group()
-                    self.op.append(_numero)
-                    self.num+=1
+        return {"result":nueva_cadena, "count":count}
+
+    def quitar(self, entrada:str, token:str):
+        nueva_cadena = ""
+        count_1 = 0
+        lista = entrada.split(token)
+        for j in lista:
+            if count_1 == len(lista) - 1:
+                nueva_cadena += j
+            elif count_1 > 0:
+                nueva_cadena += j + token
+
+            count_1 += 1
+        return nueva_cadena
 
 
-                    #SUMA
-                    if self.op[0]=="SUMA" and self.num==2:
-                        print(float(self.op[1])+float(self.op[2]))
-                        results=(float(self.op[1])+float(self.op[2]))
-                        num1=(self.op[1])
-                        num2=(self.op[2])
-                        operacion=self.op[0]
-                        locacion=(operacion +": " + num1 + " + " + num2 + " = " + str(results))
-                        result.append(locacion)
+    def verificarID(self, entrada:str):
+        count = 0
+        llave = False
+        alfabeto = ["A", "B", "C", "D", "E", "F", "a", "b", "c", "d", "e", "f", "0", "1", "2", "3", "4", "_"]
+        for i in entrada:
+            llave = False
+            for j in alfabeto:
+                if i == j:
+                    llave = True
+                    break
+            if llave == False:
+                return {"result":None, "count":count}
 
-                    #RESTA
-                    if self.op[0]=="RESTA" and self.num==2:
-                        print(float(self.op[1])-float(self.op[2]))
-                        results=(float(self.op[1])-float(self.op[2]))
-                        num1=(self.op[1])
-                        num2=(self.op[2])
-                        operacion=self.op[0]
-                        locacion=(operacion +": " + num1 + " - " + num2 + " = " + str(results))
-                        result.append(locacion)
+            count += 1
+
+        return {"result":True, "count":count}
 
 
+    def cometariomultilinea(self, cadena : str):
+        try:
+            tmp = ""
+            count = 0
+            llave = False
+            if cadena[0] == "/" and cadena[1] == "*":
+                for i in cadena:
+                    if llave:
+                        tmp += i
 
-                    #MULTIPLICACION
-                    if self.op[0]=="MULTIPLICACION" and self.num==2:
-                        print(float(self.op[1])*float(self.op[2]))
-                        results=(float(self.op[1])*float(self.op[2]))
-                        num1=(self.op[1])
-                        num2=(self.op[2])
-                        operacion=self.op[0]
-                        locacion=(operacion +": " + num1 + " * " + num2 + " = " + str(results))
-                        result.append(locacion)
-
-
-
-
-
-                    #DIVISION
-                    if self.op[0]=="DIVISION" and self.num==2:
-                        print(float(self.op[1])/(float(self.op[2])))
-                        results=(float(self.op[1])/(float(self.op[2])))
-                        num1=(self.op[1])
-                        num2=(self.op[2])
-                        operacion=self.op[0]
-                        locacion=(operacion +": " + num1 + " / " + num2 + " = " + str(results))
-                        result.append(locacion)
-
-
-
-                    #POTENCIA
-                    if self.op[0]=="POTENCIA" and self.num==2:
-                        print((float(self.op[2]))**(float(self.op[1])))
-                        results=((float(self.op[2]))**(float(self.op[1])))
-                        num1=(self.op[1])
-                        num2=(self.op[2])
-                        operacion=self.op[0]
-                        locacion=(operacion +": " + num2 + " ^ " + num1 + " = " + str(results))
-                        result.append(locacion)
-
-
+                    if cadena[count - 1] == "*" and cadena[count] == "/":
+                        llave = True
                     
-                    #RAIZ
-                    if self.op[0]=="RAIZ" and self.num==2:
-                        print((float(self.op[2]))**(1/(float(self.op[1]))))
-                        results=((float(self.op[2]))**(1/(float(self.op[1]))))
-                        num1=(self.op[1])
-                        num2=(self.op[2])
-                        operacion=self.op[0]
-                        locacion=(operacion +": " + num1 + " √ " + num2 + " = " + str(results))
-                        result.append(locacion)
+                    count += 1
+                print( self.linea, " | ", self.columna," | COMENTARIO MULTILINEA")
+                self.columna += count
+                self.aumentarLinea()
+                return tmp
+            return cadena
+        except:
+            return cadena
 
 
+    def lecturaporEstados(self, cadena):
+        self.EstadoActual = "Q0"
 
-                    #INVERSO
-                    if self.op[0]=="INVERSO" and self.num==1:
-                        print(1/(float(self.op[1])))
-                        results=(1/(float(self.op[1])))
-                        num1=(self.op[1])
-                        operacion=self.op[0]
-                        locacion=(operacion +": "+"1/" + num1 + " = " + str(results))
-                        result.append(locacion)
+        while cadena != "":
 
+            if self.EstadoActual == "Q0":
+                token = "<"
+                res = self.verificarToken(cadena, token)
+                #VERIFICAR ERROR
+                if res["result"] == None:
+                    print("ERROR")
+                    break
+                print( self.linea, " | ", self.columna," | ",  token)
+                cadena = res["result"]
+                self.columna += res["count"]
+                self.EstadoActual = "A"
+                #aumentar linea
+                self.aumentarLinea()
 
+            elif self.EstadoActual == "A":
+                token = "!"
+                res = self.verificarToken(cadena, token)
+                #VERIFICAR ERROR
+                if res["result"] == None:
+                    print("ERROR")
+                    break
+                print( self.linea, " | ", self.columna," | ",  token)
+                cadena = res["result"]
+                self.columna += res["count"]
+                self.EstadoActual = "B"
+                #aumentar linea
+                self.aumentarLinea()
+
+            elif self.EstadoActual == "B":
+                token = "-"
+                res = self.verificarToken(cadena, token)
+                #VERIFICAR ERROR
+                if res["result"] == None:
+                    print("ERROR")
+                    break
+                print( self.linea, " | ", self.columna," | ",  token)
+                cadena = res["result"]
+                self.columna += res["count"]
+                self.EstadoActual = "C"
+                #aumentar linea
+                self.aumentarLinea()
+
+            elif self.EstadoActual == "C":
+                token = "-"
+                res = self.verificarToken(cadena, token)
+                #VERIFICAR ERROR
+                if res["result"] == None:
+                    print("ERROR")
+                    break
+                print( self.linea, " | ", self.columna," | ",  token)
+                cadena = res["result"]
+                self.columna += res["count"]
+                self.EstadoActual = "D"
+                #aumentar linea
+                self.aumentarLinea()
+
+            elif self.EstadoActual == "D":
+                token = "Controles"
+                res = self.verificarToken(cadena, token)
+                #VERIFICAR ERROR
+                if res["result"] == None:
+                    print("ERROR")
+                    break
+                print( self.linea, " | ", self.columna," | ",  token)
+                cadena = res["result"]
+                self.columna += res["count"]
+                self.EstadoActual = "E"
+                #aumentar linea
+                self.aumentarLinea()
+
+            elif self.EstadoActual == "E":
+                token = ">"
+                res = self.verificarToken(cadena, token)
+                #VERIFICAR ERROR
+                if res["result"] == None:
+                    print("ERROR")
+                    break
+                print( self.linea, " | ", self.columna," | ",  token)
+                cadena = res["result"]
+                self.columna += res["count"]
+                self.EstadoActual = "F"
+                #aumentar linea
+                self.aumentarLinea()
+
+            elif self.EstadoActual == "F":
+                cadena = self.cometariomultilinea(cadena)
+                print(cadena)
+                token = "<"
+                res = self.verificarToken(cadena, token)
+               
+                if res["result"] == None:
+                    tokens = ["Boton", "Texto", "Contenedor"]
                     
-                    #SENO
-                    if self.op[0]=="SENO" and self.num==1:
-                        print(math.sin(float(self.op[1])))
-                        results=(math.sin(math.radians((float(self.op[1])))))
-                        num1=(self.op[1])
-                        operacion=self.op[0]
-                        if results<=0.00000001:
-                            results=0
-                        locacion=(operacion +": " + " SIN(" + num1 + ")"+" = " + str(results))
-                        result.append(locacion)
-
-
-
-                    #COSENO
-                    if self.op[0]=="COSENO" and self.num==1:
-                        print(math.cos(float(self.op[1])))
-                        results=(math.cos(math.radians((float(self.op[1])))))
-                        num1=(self.op[1])
-                        operacion=self.op[0]
-                        if results<=0.00000001:
-                            results=0
-                        locacion=(operacion +": " + " COS(" + num1 + ")"+" = " + str(results))
-                        result.append(locacion)
-
-
-
-                    #TANGENTE
-                    if self.op[0]=="TANGENTE" and self.num==1:
-                        print(math.tan(float(self.op[1])))
-                        results=(math.tan(math.radians((float(self.op[1])))))
-                        num1=(self.op[1])
-                        operacion=self.op[0]
-                        if results<=0.00000001:
-                            results=0
-                        locacion=(operacion +": " + " TAN(" + num1 + ")"+" = " + str(results))
-                        result.append(locacion)
-
-
-
-                    #MOD
-                    if self.op[0]=="MOD" and self.num==2:
-                        print(float(self.op[1])%float(self.op[2]))
-                        results=(float(self.op[1])%float(self.op[2]))
-                        num1=(self.op[1])
-                        num2=(self.op[2])
-                        operacion=self.op[0]
-                        locacion=(operacion +": " + num1 + " % " + num2 + " = " + str(results))
-                        result.append(locacion)
-
-
-                    # GRANDES
-                    # if self.num==3 and self.op[0]=="SUMA" and self.op[2]=="SUMA":
-                    #     print(float(self.op[1])+float(self.op[3])+float(self.op[4]))
-                _cadena = self.quitar(_cadena, s.end())
-                self.aumentarLinea()
-
-            except:
-                # GUARDAR ERROR
-                errorl=str(self.linea)
-                
-                errorc=str(self.columna)
-                
-                lex=str(s.group())
-                print("Ocurrio un error")
-                return {'resultado':_numero, "cadena":_cadena, "Error": True}
-
-        return {'resultado':_numero, "cadena":_cadena, "Error":False}
-
-    def Operacion(self, _cadena : str):
-        tokens = [
-            L_tokens.TK_MENOR.value,        # <
-            L_tokens.TK_E_OPERACION.value,  # Operacion
-            L_tokens.TK_IGUAL.value,              # =
-            "OPERADOR",                     # OPERADOR
-            L_tokens.TK_MAYOR.value,        # >
-            "NUMERO",                       # NUMERO
-            "NUMERO",                       # NUMERO
-            L_tokens.TK_MENOR.value,        # <
-            L_tokens.TK_BARRAINV.value,     # /
-            L_tokens.TK_E_OPERACION.value,  # Operacion
-            L_tokens.TK_MAYOR.value,        # >
-        ]
-        _numero = ""
-        _operador = None
-        for i in tokens:
-            try:
-                if "NUMERO" == i:
-                    if self.esLaetiqueta(_cadena, "<Numero>"):
-                        _result = self.Numero(_cadena)
-                        _cadena = _result['cadena']
-                        if _result['Error']:
-                            # GUARDAR ERROR
-                            print("Ocurrio un error")
-                            return {'resultado':_numero, "cadena":_cadena, "Error": True}
-
-                    elif self.esLaetiqueta(_cadena, "<Operacion="):
-                        _result = self.Operacion(_cadena)
-                        _cadena = _result['cadena']
-                        if _result['Error']:
-                            # GUARDAR ERROR
-                            print("Ocurrio un error")
-                            return {'resultado':_numero, "cadena":_cadena, "Error": True}
-                    else:
-                        # GUARDAR ERROR
-                        print("Ocurrio un error")
-                        return {'resultado':_numero, "cadena":_cadena, "Error": True}
-                
-                else:
-                    if "OPERADOR" == i:
-                        # SUMA
-                        spatron = re.compile(f'^SUMA')
-                        t = spatron.search(_cadena)
-                        #print("OPERADOR -> ", t)
-                        if t != None:
-                            i = "SUMA"
-                            _operador = L_tokens.TK_OP_SUMA
-                            self.op.append("SUMA")
-
-                        # RESTA
-                        spatron = re.compile(f'^RESTA')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "RESTA"
-                            _operador = L_tokens.TK_OP_RESTA
-                            self.op.append("RESTA")
-
-                        # MULTIPLICACION
-                        spatron = re.compile(f'^MULTIPLICACION')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "MULTIPLICACION"
-                            _operador = L_tokens.TK_OP_MULTIPLICACION
-                            self.op.append("MULTIPLICACION")
-                        
-                        # DIVISION
-                        spatron = re.compile(f'^DIVISION')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "DIVISION"
-                            _operador = L_tokens.TK_OP_DIVISION
-                            self.op.append("DIVISION")
-                        
-                        # POTENCIA
-                        spatron = re.compile(f'^POTENCIA')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "POTENCIA"
-                            _operador = L_tokens.TK_OP_POTENCIA
-                            self.op.append("POTENCIA")
-
-                        # RAIZ
-                        spatron = re.compile(f'^RAIZ')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "RAIZ"
-                            _operador = L_tokens.TK_OP_RAIZ
-                            self.op.append("RAIZ")
-
-                        # INVERSO
-                        spatron = re.compile(f'^INVERSO')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "INVERSO"
-                            _operador = L_tokens.TK_OP_INVERSO
-                            tokens.pop(6)
-                            self.op.append("INVERSO")
-
-                        # SENO
-                        spatron = re.compile(f'^SENO')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "SENO"
-                            _operador = L_tokens.TK_OP_SENO
-                            tokens.pop(6)
-                            self.op.append("SENO")
-
-                        # COSENO
-                        spatron = re.compile(f'^COSENO')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "COSENO"
-                            _operador = L_tokens.TK_OP_COSENO
-                            tokens.pop(6)
-                            self.op.append("COSENO")
-                        
-                        # TANGENTE
-                        spatron = re.compile(f'^TANGENTE')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "TANGENTE"
-                            _operador = L_tokens.TK_OP_TANGENTE
-                            tokens.pop(6)
-                            self.op.append("TANGENTE")
-                        
-                        # MOD
-                        spatron = re.compile(f'^MOD')
-                        t = spatron.search(_cadena)
-                        if t != None:
-                            i = "MOD"
-                            _operador = L_tokens.TK_OP_MOD
-                            self.op.append("MOD")
-
-                        if _operador == None:
-                            # GUARDAR ERROR
-                            print("Ocurrio un error Operacion")
-                            return {'resultado':_numero, "cadena":_cadena, "Error": True}
-
-                    patron = re.compile(f'^{i}')
-                    s = patron.search(_cadena)
-                    global errorl
-                    global errorc
-                    global lex
-                    errorl=""
-                    errorc=""
-                    lex=""
-                    # GUARDAR EL TOKEN
-                    print("| ", self.linea, " | ", self.columna, " | ", s.group())
-                    self.columna += int(s.end())
-                    _cadena = self.quitar(_cadena, s.end())
-                self.aumentarLinea()
-            except:
-                # GUARDAR ERROR
-                errorl=str(self.linea)
-                
-                errorc=str(self.columna)
-                
-                lex=str(s.group())
-                print("Ocurrio un error")
-                return {'resultado':_numero, "cadena":_cadena, "Error": True}
-
-        # NUMERO1 OPERADOR NUMERO2
-        return {'resultado':_numero, "cadena":_cadena, "Error":False}
-
-
-    def Texto(self, _cadena : str):
-        tokens = [
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_TEXTO.value, # Texto
-            L_tokens.TK_MAYOR.value,    # >
-            L_tokens.TK_TEXTO.value,         # Hola como estas
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_E_TEXTO.value, # Texto
-            L_tokens.TK_MAYOR.value     # >
-        ]
-        _numero = ""
-
-        for i in tokens:
-            try:
-                patron = re.compile(f'^{i}')
-                s = patron.search(_cadena)
-                global errorl
-                global errorc
-                global lex
-                errorl=""
-                errorc=""
-                lex=""
-                print("| ", self.linea, " | ", self.columna, " | ", s.group())
-                if i == L_tokens.TK_TEXTO.value:
-                    datos.append(s.group())
-                self.columna += int(s.end())
-                # GUARDAR EL TOKEN
-                _cadena = self.quitar(_cadena, s.end())
-                self.aumentarLinea()
-            except:
-                # GUARDAR ERROR
-                errorl=str(self.linea)
-                
-                errorc=str(self.columna)
-                
-                lex=str(s.group())
-                print("Ocurrio un error")
-                return {'resultado':_numero, "cadena":_cadena, "Error": True}
-        self.Funcion(_cadena)
-    
-    def Funcion(self, _cadena : str):
-        tokens = [
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_FUNCION.value, # Funcion
-            L_tokens.TK_IGUAL.value, # =
-            L_tokens.TK_ESCRIBIR.value, #Escribir
-            L_tokens.TK_MAYOR.value,    # >
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_TITULO.value,  #Titulo
-            L_tokens.TK_MAYOR.value,    # >
-            L_tokens.TK_TITULO.value,   #Operaciones simples
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_E_TITULO.value, # Titulo
-            L_tokens.TK_MAYOR.value,     # >
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_DESCRIPCION.value, # Descripcion
-            L_tokens.TK_MAYOR.value,     # >
-            L_tokens.TK_DESCRIPCION.value,
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_E_DESCRIPCION.value, # Descripcion
-            L_tokens.TK_MAYOR.value,     # >
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_CONTENIDO.value, # Contenido
-            L_tokens.TK_MAYOR.value,     # >
-            L_tokens.TK_CONTENIDO.value,
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_E_CONTENIDO.value, # Contenido
-            L_tokens.TK_MAYOR.value,     # >
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_E_FUNCION.value, # Funcion
-            L_tokens.TK_MAYOR.value     # >
-        ]
-        _numero = ""
-        global titulo
-        for i in tokens:
-            try:
-                patron = re.compile(f'^{i}')
-                s = patron.search(_cadena)
-                global errorl
-                global errorc
-                global lex
-                errorl=""
-                errorc=""
-                lex=""
-                print("| ", self.linea, " | ", self.columna, " | ", s.group())
-                
-                if i == L_tokens.TK_TITULO.value:
-                    titulo=s.group()
-                self.columna += int(s.end())
-                # GUARDAR EL TOKEN
-                _cadena = self.quitar(_cadena, s.end())
-                self.aumentarLinea()
-            except:
-                # GUARDAR ERROR
-                print("Ocurrio un error")
-                
-                errorl=str(self.linea)
-                
-                errorc=str(self.columna)
-                
-                lex=str(s.group())
-                
-                
-                return {'resultado':_numero, "cadena":_cadena, "Error": True}
-            continue
-                
-        self.Estilo(_cadena)
-
-    def Estilo(self, _cadena : str):
-        tokens = [
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_ESTILO.value, # Estilo
-            L_tokens.TK_MAYOR.value,    # >
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_TITULO.value,  #Titulo
-            L_tokens.TK_E_COLOR.value,  #Color
-            L_tokens.TK_IGUAL.value,    #=
-            L_tokens.TK_COLOR.value,    #AZUL
-            L_tokens.TK_E_TAMANIO.value,  #TAMAÑO
-            L_tokens.TK_IGUAL.value,  #=
-            L_tokens.TK_TAMANIO.value,  #20
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_MAYOR.value,     # >
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_DESCRIPCION.value,  #Titulo
-            L_tokens.TK_E_COLOR.value,  #Color
-            L_tokens.TK_IGUAL.value,    #=
-            L_tokens.TK_COLOR.value,    #AZUL
-            L_tokens.TK_E_TAMANIO.value,  #TAMAÑO
-            L_tokens.TK_IGUAL.value,  #=
-            L_tokens.TK_TAMANIO.value,  #20
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_MAYOR.value,     # >
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_E_CONTENIDO.value,  #Titulo
-            L_tokens.TK_E_COLOR.value,  #Color
-            L_tokens.TK_IGUAL.value,    #=
-            L_tokens.TK_COLOR.value,    #AZUL
-            L_tokens.TK_E_TAMANIO.value,  #TAMAÑO
-            L_tokens.TK_IGUAL.value,  #=
-            L_tokens.TK_TAMANIO.value,  #20
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_MAYOR.value,     # >
-            L_tokens.TK_MENOR.value,    # <
-            L_tokens.TK_BARRAINV.value, # /
-            L_tokens.TK_E_ESTILO.value, # Estilo
-            L_tokens.TK_MAYOR.value,    # >
-        ]
-        _numero = ""
-        for i in tokens:
-            try:
-                patron = re.compile(f'^{i}')
-                s = patron.search(_cadena)
-                global errorl
-                global errorc
-                global lex
-                errorl=""
-                errorc=""
-                lex=""
-                print("| ", self.linea, " | ", self.columna, " | ", s.group())
-                self.columna += int(s.end())
-
-
-                if i == L_tokens.TK_COLOR.value:
-                    colortz.append(s.group())
-
-
-                if i == L_tokens.TK_TAMANIO.value:
-                    tamañoletra.append(s.group())
-
-
-                # GUARDAR EL TOKEN
-                _cadena = self.quitar(_cadena, s.end())
-                self.aumentarLinea()
-            except:
-                errorl=str(self.linea)
-                
-                errorc=str(self.columna)
-                
-                lex=str(s.group())
-                # GUARDAR ERROR
-                print("Ocurrio un error")
-                return {'resultado':_numero, "cadena":_cadena, "Error": True}
-
-    def Tipo(self, _cadena : str):
-        tokens = [
-            L_tokens.TK_MENOR.value,        # <
-            L_tokens.TK_E_TIPO.value,       # Tipo
-            L_tokens.TK_MAYOR.value,        # >
-            L_tokens.TK_TITULO.value,
-            "OPERACIONES",                  # OPERACIONES
-            L_tokens.TK_MENOR.value,        # <
-            L_tokens.TK_BARRAINV.value,     # /
-            L_tokens.TK_E_TIPO.value,       # Tipo
-            L_tokens.TK_MAYOR.value,        # >
-        ]
-        _numero = ""
-    
-        for i in tokens:
-            try:
-                
-                if "OPERACIONES" == i:
-                    salida = True
-                    while salida:
-                        print("--------------------------------")
-                        self.num=0
-                        self.op=[]
-                        _result = self.Operacion(_cadena)
-                        _cadena = _result['cadena']
-                        if _result['Error']:
-                            # GUARDAR ERROR
-                            print("Ocurrio un error")
+                    for i in tokens:
+                        res = self.verificarToken(cadena, i)
+                        if res["result"] != None:
+                            token = i
+                            self.EstadoActual = "H"
                             break
-                        
-                        if self.esLaetiqueta(_cadena, "</Tipo>"):
-                            salida = False
                 else:
-                    patron = re.compile(f'^{i}')
-                    s = patron.search(_cadena)
-                    global errorl
-                    global errorc
-                    global lex
-                    errorl=""
-                    errorc=""
-                    lex=""
-                    # GUARDAR EL TOKEN
-                    print("| ", self.linea, " | ", self.columna, " | ", s.group())
-                    self.columna += int(s.end())
-                    _cadena = self.quitar(_cadena, s.end())
+                    self.EstadoActual = "G"
+                
+                #VERIFICAR ERROR
+                if res["result"] == None:
+                    print("ERROR")
+                    break
+
+                print( self.linea, " | ", self.columna," | ",  token)
+                cadena = res["result"]
+                self.columna += res["count"]
+                #aumentar linea
+                
                 self.aumentarLinea()
-            except:
-                errorl=str(self.linea)
                 
-                errorc=str(self.columna)
-                
-                lex=str(s.group())
-                # GUARDAR ERROR
-                print("Ocurrio un error")
-                return {'resultado':_numero, "cadena":_cadena, "Error": True}
 
-        
-        self.Texto(_cadena)
-
-        return {'resultado':_numero, "cadena":_cadena, "Error": False}
+            elif self.EstadoActual == "H":
+                tmp = cadena.split(";")
+                id = tmp[0]
+                print(self.verificarID(id))
+                cadena = self.quitar(cadena, id)
+                print("--> ",cadena)
+                break
+                    
 
     def compile(self):
         # LEEMOS EL ARCHIVO DE ENTRADA
         archivo = open(self.archivoimp, "r", encoding="utf-8")
-        global contenido
         contenido = archivo.readlines()
         archivo.close()
 
-        
-
         # LIMPIAR MI ENTRADA
-        global nueva_cadena
         nueva_cadena = ""
-        global lista_cadena
         lista_cadena = []
-        global nueva
-        
-
-        
 
         for i in contenido:
             i = i.replace(' ', '') #QUITANDO ESPACIOS
             i = i.replace('\n', '') # QUITANDO SALTOS DE LINEA
-            i = i.replace('[','') 
-            i = i.replace(']','') 
-            i = i.replace('"','')
-            i = i.replace('AZUL','blue')
-            i = i.replace('ANARANJADO','orange')
-            i = i.replace('NARANJA','orange')
-            i = i.replace('ROJO','red')
-            i = i.replace('AMARILLO','yellow')
-            i = i.replace('VERDE','green')
-            i = i.replace('MORADO','purple')
             if i != '':
                 nueva_cadena += i
                 lista_cadena.append(i)
-       
-        
 
+        print("-------------------")
         print(nueva_cadena)
+        print("-------------------")
         print(lista_cadena)
 
         self.lista_cadena = lista_cadena
+        self.lecturaporEstados(nueva_cadena)
 
-        print(self.Tipo(nueva_cadena))
+
     
-    def htmlanalizar():
+    # def htmlanalizar():
 
-        for j in contenido:
-            if j!="":
-                lista_cadena.append(j)
+    #     for j in contenido:
+    #         if j!="":
+    #             lista_cadena.append(j)
 
-        r=0
+    #     r=0
         
-        hola=colortz[1]
+    #     #hola=colortz[1]
 
-        for x in range(len(lista_cadena)):
+    #     for x in range(len(lista_cadena)):
 
-            if lista_cadena[x]=="<Texto>\n":
-                nueva=lista_cadena[x+1]
-                r=2
-                while lista_cadena[x+r]!="</Texto>\n":
-                    nueva+='<p style=color:'+hola+';font-size:'+tamañoletra[1]+'px;>'+lista_cadena[x+r]+"</p>\n"
-                    r+=1
+    #         if lista_cadena[x]=="<Texto>\n":
+    #             nueva=lista_cadena[x+1]
+    #             r=2
+    #             while lista_cadena[x+r]!="</Texto>\n":
+    #                 nueva+='<p style=color:'+hola+';font-size:'+tamañoletra[1]+'px;>'+lista_cadena[x+r]+"</p>\n"
+    #                 r+=1
 
-
-        r = open("Resultados_202109715.html","w+",encoding="utf-8")
-        cadena="<!DOCTYPE html>\n"
-        cadena+= "<html lang=\"es\">\n"
-        cadena+= "  <head>\n"
-        cadena+="       <meta charset=\"UTF-8\">\n"
-        cadena+="       <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n"
-        cadena+="       <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-        cadena+="</head>\n"
-        cadena += "    <body>\n"
-        cadena += '         <h1 style=color:'+colortz[0]+';font-size:'+tamañoletra[0]+'px;>'+"<center>"+"<FONT FACE='arial'>"+titulo+"</center>"+"</FONT>"+"</h1>\n"
-        cadena += '         <p style=color:'+colortz[1]+';font-size:'+tamañoletra[1]+'px;>'+"<FONT FACE='arial'>"+nueva+"</FONT>"+"</p>\n"
-        for i in result:
-            cadena +='          <p style="color:'+colortz[2]+';font-size:10px;">'+"<FONT FACE='arial'>"+str(i)+"</p>\n"
-        cadena +="    <body>\n"
-        cadena +="</html>\n"
-        r.writelines(cadena)
-        doc_analizador = 'Resultados_202109715.html'
-        webbrowser.open_new(doc_analizador)
+    #     titulo="Hola"
+    #     r = open("Resultados_202109715.html","w+",encoding="utf-8")
+    #     cadena="<!DOCTYPE html>\n"
+    #     cadena+= "<html lang=\"es\">\n"
+    #     cadena+= "  <head>\n"
+    #     cadena+="       <meta charset=\"UTF-8\">\n"
+    #     cadena+="       <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n"
+    #     cadena+="       <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+    #     cadena+="</head>\n"
+    #     cadena += "    <body>\n"
+    #     cadena += '         <h1 style=color:'+colortz[0]+';font-size:'+tamañoletra[0]+'px;>'+"<center>"+"<FONT FACE='arial'>"+titulo+"</center>"+"</FONT>"+"</h1>\n"
+    #     cadena += '         <p style=color:'+colortz[1]+';font-size:'+tamañoletra[1]+'px;>'+"<FONT FACE='arial'>"+nueva+"</FONT>"+"</p>\n"
+    #     for i in result:
+    #         cadena +='          <p style="color:'+colortz[2]+';font-size:10px;">'+"<FONT FACE='arial'>"+str(i)+"</p>\n"
+    #     cadena +="    <body>\n"
+    #     cadena +="</html>\n"
+    #     r.writelines(cadena)
+    #     doc_analizador = 'Resultados_202109715.html'
+    #     webbrowser.open_new(doc_analizador)
         
  
 
 
     def htmlerrores():
+        lex="1"
+        errorl="Error"
+        errorc=""
         r = open("Errores_202109715.html","w+",encoding="utf-8")
         cadena="<!DOCTYPE html>\n"
         cadena+= "<html lang=\"es\">\n"
