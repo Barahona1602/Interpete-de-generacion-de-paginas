@@ -28,12 +28,13 @@ class Analizador:
         controles=[]
         global idlist
         idlist=[]
-        global tamañoletra 
-        tamañoletra=[]
-        global hola
-        hola=""
         global errores 
         errores=[]
+        global tokenlex
+        tokenlex=[]
+        
+
+
 
     def aumentarLinea(self):
         # _tmp = self.lista_cadena[self.linea]
@@ -129,6 +130,16 @@ class Analizador:
         cont_numtoken=115
         cont_numtoken2=217
         cont_numvalor=250
+        global tipo_error
+        tipo_error=""
+        global linea_error
+        linea_error=""
+        global columna_error
+        columna_error=""
+        global token_error
+        token_error=""
+        global desc_error
+        desc_error=""
         while cadena != "":
 
             if self.EstadoActual == "Q0":
@@ -138,11 +149,17 @@ class Analizador:
                 #VERIFICAR ERROR
                 if res["result"] == None:
                     print("ERROR")
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "A"
+                tokenlex.append("Apertura")
                 tokenlist.append("<")
                 numtoken.append("101")
                 lexema.append("<!--Controles")
@@ -153,12 +170,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "B"
+                tokenlex.append("Admiración")
                 tokenlist.append("!")
                 numtoken.append("102")
                 lexema.append("<!--Controles")
@@ -169,12 +192,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "C"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("103")
                 lexema.append("<!--Controles")
@@ -187,12 +216,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "D"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("103")
                 lexema.append("<!--Controles")
@@ -205,6 +240,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -212,6 +252,7 @@ class Analizador:
                 self.columna += res["count"]
                 self.EstadoActual = "F"
                 self.aumentarLinea()
+                tokenlex.append("Controles")
                 tokenlist.append("Controles")
                 numtoken.append("104")
                 lexema.append("<!--Controles")
@@ -231,6 +272,7 @@ class Analizador:
                         if res["result"] != None:
                             token = i
                             self.EstadoActual = "H"
+                            tokenlex.append("Tipo")
                             tokenlist.append(token)
                             controles.append(token)
                             if token =="Etiqueta":
@@ -252,6 +294,7 @@ class Analizador:
                             break
                 else:
                     self.EstadoActual = "I"
+                    tokenlex.append("Controles")
                     tokenlist.append("Controles")
                     numtoken.append("104")
                     lexema.append("Controles-->")
@@ -259,6 +302,11 @@ class Analizador:
                 
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
 
@@ -275,12 +323,18 @@ class Analizador:
                 id = tmp[0]
                 res= self.verificarID(id)
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 cadena = self.quitar(cadena, id)
                 print( self.linea, " | ", self.columna," | ",  id)
                 self.columna += res["count"]
                 self.EstadoActual = "J"
+                tokenlex.append("ID")
                 tokenlist.append(id)
                 numtoken.append(str(cont_numtoken))
                 lexema.append(token+" "+id+";")
@@ -299,6 +353,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -307,6 +366,7 @@ class Analizador:
                 self.EstadoActual = "F"
                 #aumentar linea
                 self.aumentarLinea()
+                tokenlex.append("Punto y coma")
                 tokenlist.append(";")
                 numtoken.append("113")
 
@@ -319,12 +379,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "K"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("103")
                 lexema.append("Controles-->")
@@ -337,12 +403,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "L"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("103")
                 lexema.append("Controles-->")
@@ -355,6 +427,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -363,6 +440,7 @@ class Analizador:
                 self.EstadoActual = "M"
                 #aumentar linea
                 self.aumentarLinea()
+                tokenlex.append("Cierre")
                 tokenlist.append(">")
                 numtoken.append("114")
                 lexema.append("Controles-->")
@@ -375,12 +453,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "N"
+                tokenlex.append("Apertura")
                 tokenlist.append("<")
                 numtoken.append("201")
                 lexema.append("<!--Propiedades")
@@ -394,12 +478,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "O"
+                tokenlex.append("Admiración")
                 tokenlist.append("!")
                 numtoken.append("202")
                 lexema.append("<!--Propiedades")
@@ -412,12 +502,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "P"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("203")
                 lexema.append("<!--Propiedades")
@@ -430,12 +526,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "Q"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("203")
                 lexema.append("<!--Propiedades")
@@ -448,6 +550,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR Q")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -455,6 +562,7 @@ class Analizador:
                 self.columna += res["count"]
                 self.EstadoActual = "S"
                 self.aumentarLinea()
+                tokenlex.append("Propiedades")
                 tokenlist.append("propiedades")
                 numtoken.append("204")
                 lexema.append("<!--propiedades")
@@ -472,6 +580,7 @@ class Analizador:
                         res = self.verificarToken(cadena, i)
                         if res["result"] != None:
                             id = i
+                            tokenlex.append("ID")
                             tokenlist.append(id)
                             numtoken.append(str(cont_numtoken2))
                             cont_numtoken2+=1
@@ -482,6 +591,7 @@ class Analizador:
                             break
                 else:
                     self.EstadoActual = "Y"
+                    tokenlex.append("Propiedades")
                     tokenlist.append("propiedades")
                     numtoken.append("204")
                     lexema.append("propiedades-->")
@@ -491,6 +601,11 @@ class Analizador:
                 
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
 
@@ -508,12 +623,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR T")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "U"
+                tokenlex.append("Punto")
                 tokenlist.append(".")
                 numtoken.append("205")
 
@@ -528,6 +649,7 @@ class Analizador:
                     if res["result"] != None:
                         token = i
                         self.EstadoActual = "H"
+                        tokenlex.append("Set")
                         tokenlist.append(token)
                         controles.append(token)
                         if token =="setColorFondo":
@@ -549,6 +671,11 @@ class Analizador:
                         break
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR U")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -566,12 +693,18 @@ class Analizador:
                 id2 = tmp[0]
                 res= self.verificarID(id2)
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR V")
                     break
                 cadena = self.quitar(cadena, id2)
                 print( self.linea, " | ", self.columna," | ",  id2)
                 self.columna += res["count"]
                 self.EstadoActual = "W"
+                tokenlex.append("Valor")
                 tokenlist.append(id2)
                 numtoken.append(str(cont_numvalor))
                 lexema.append(id+"."+token+id2+";")
@@ -592,6 +725,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR W")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -600,6 +738,7 @@ class Analizador:
                 self.EstadoActual = "S"
                 #aumentar linea
                 self.aumentarLinea()
+                tokenlex.append("Punto y coma")
                 tokenlist.append(";")
                 numtoken.append("214")
 
@@ -612,15 +751,21 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR Y")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "Z"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("203")
-                lexema.append("Propiedades-->")
+                lexema.append("propiedades-->")
                 
 
 
@@ -630,15 +775,21 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR Z")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "AA"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("203")
-                lexema.append("Propiedades-->")
+                lexema.append("propiedades-->")
                 
                 
 
@@ -648,6 +799,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR AA")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -656,9 +812,10 @@ class Analizador:
                 self.EstadoActual = "BB"
                 #aumentar linea
                 self.aumentarLinea()
+                tokenlex.append("Cierre")
                 tokenlist.append(">")
                 numtoken.append("214")
-                lexema.append("Propiedades-->")
+                lexema.append("propiedades-->")
     
             elif self.EstadoActual == "BB":
                 cadena = self.comentariomultilinea(cadena)
@@ -666,12 +823,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "CC"
+                tokenlex.append("Apertura")
                 tokenlist.append("<")
                 numtoken.append("301")
                 lexema.append("<!--Colocacion")
@@ -685,12 +848,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "DD"
+                tokenlex.append("Admiración")
                 tokenlist.append("!")
                 numtoken.append("302")
                 lexema.append("<!--Colocacion")
@@ -703,12 +872,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "EE"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("303")
                 lexema.append("<!--Colocacion")
@@ -721,12 +896,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "FF"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("303")
                 lexema.append("<!--Colocacion")
@@ -739,6 +920,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR FF")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -746,6 +932,7 @@ class Analizador:
                 self.columna += res["count"]
                 self.EstadoActual = "HH"
                 self.aumentarLinea()
+                tokenlex.append("Colocación")
                 tokenlist.append("Colocacion")
                 numtoken.append("304")
                 lexema.append("<!--Colocacion")
@@ -763,6 +950,7 @@ class Analizador:
                         res = self.verificarToken(cadena, i)
                         if res["result"] != None:
                             id = i
+                            tokenlex.append("ID")
                             tokenlist.append(id)
                             numtoken.append(str(cont_numtoken2))
                             cont_numtoken2+=1
@@ -773,6 +961,7 @@ class Analizador:
                             break
                 else:
                     self.EstadoActual = "SS"
+                    tokenlex.append("Colocación")
                     tokenlist.append("Colocacion")
                     numtoken.append("304")
                     lexema.append("Colocacion-->")
@@ -782,6 +971,11 @@ class Analizador:
                 
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR HH")
                     break
                 
@@ -795,12 +989,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR II")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "JJ"
+                tokenlex.append("Punto")
                 tokenlist.append(".")
                 numtoken.append("305")
 
@@ -813,12 +1013,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR JJ")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "KK"
+                tokenlex.append("Set")
                 tokenlist.append("setPosicion")
                 numtoken.append("306")
                 
@@ -832,12 +1038,18 @@ class Analizador:
                 id2 = tmp[0]
                 res= self.verificarID(id2)
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR KK")
                     break
                 cadena = self.quitar(cadena, id2)
                 print( self.linea, " | ", self.columna," | ",  id2)
                 self.columna += res["count"]
                 self.EstadoActual = "LL"
+                tokenlex.append("Valor")
                 tokenlist.append(id2)
                 numtoken.append(str(cont_numvalor))
                 lexema.append(id+"."+token+id2+";")
@@ -858,6 +1070,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR LL")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -866,6 +1083,7 @@ class Analizador:
                 self.EstadoActual = "MM"
                 #aumentar linea
                 self.aumentarLinea()
+                tokenlex.append("Punto y Coma")
                 tokenlist.append(";")
                 numtoken.append("307")
 
@@ -883,6 +1101,7 @@ class Analizador:
                         res = self.verificarToken(cadena, i)
                         if res["result"] != None:
                             id = i
+                            tokenlex.append("ID")
                             tokenlist.append(id)
                             numtoken.append(str(cont_numtoken2))
                             cont_numtoken2+=1
@@ -893,6 +1112,7 @@ class Analizador:
                             break
                 else:
                     self.EstadoActual = "SS"
+                    tokenlex.append("Colocación")
                     tokenlist.append("Colocacion")
                     numtoken.append("304")
                     lexema.append("Colocacion-->")
@@ -902,6 +1122,11 @@ class Analizador:
                 
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR HH")
                     break
                 
@@ -915,12 +1140,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR NN")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "OO"
+                tokenlex.append("Punto")
                 tokenlist.append(".")
                 numtoken.append("305")
 
@@ -931,16 +1162,27 @@ class Analizador:
                 cadena = self.comentariomultilinea(cadena)
                 token = "add"
                 res = self.verificarToken(cadena, token)
-                #VERIFICAR ERROR
                 if res["result"] == None:
-                    print("ERROR OO")
-                    break
-                print( self.linea, " | ", self.columna," | ",  token)
-                cadena = res["result"]
-                self.columna += res["count"]
-                self.EstadoActual = "PP"
-                tokenlist.append("setPosicion")
-                numtoken.append("306")
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
+                    self.EstadoActual = "JJ"
+                else:
+                    print( self.linea, " | ", self.columna," | ",  token)
+                    cadena = res["result"]
+                    self.columna += res["count"]
+                    self.EstadoActual = "PP"
+                    tokenlex.append("Add")
+                    tokenlist.append("add")
+                    numtoken.append("306")
+
+                # #VERIFICAR ERROR
+                # if res["result"] == None:
+                #     print("ERROR OO")
+                #     break
+                
                 
 
 
@@ -952,12 +1194,18 @@ class Analizador:
                 id2 = tmp[0]
                 res= self.verificarID(id2)
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR PP")
                     break
                 cadena = self.quitar(cadena, id2)
                 print( self.linea, " | ", self.columna," | ",  id2)
                 self.columna += res["count"]
                 self.EstadoActual = "QQ"
+                tokenlex.append("Valor")
                 tokenlist.append(id2)
                 numtoken.append(str(cont_numvalor))
                 lexema.append(id+"."+token+id2+";")
@@ -978,6 +1226,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR LL")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -986,6 +1239,7 @@ class Analizador:
                 self.EstadoActual = "HH"
                 #aumentar linea
                 self.aumentarLinea()
+                tokenlex.append("Punto y Coma")
                 tokenlist.append(";")
                 numtoken.append("307")
 
@@ -999,12 +1253,18 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR SS")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
                 self.EstadoActual = "TT"
+                tokenlex.append("Guión")
                 tokenlist.append("-")
                 numtoken.append("303")
                 lexema.append("Colocacion-->")
@@ -1017,6 +1277,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR TT")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -1024,6 +1289,7 @@ class Analizador:
                 self.columna += res["count"]
                 self.EstadoActual = "UU"
                 tokenlist.append("-")
+                tokenlex.append("Guión")
                 numtoken.append("303")
                 lexema.append("Colocacion-->")
                 
@@ -1035,6 +1301,11 @@ class Analizador:
                 res = self.verificarToken(cadena, token)
                 #VERIFICAR ERROR
                 if res["result"] == None:
+                    tipo_error="Léxico"
+                    linea_error=str(self.linea)
+                    columna_error=str(self.columna)
+                    token_error=str(token)
+                    desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR UU")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
@@ -1042,9 +1313,15 @@ class Analizador:
                 self.columna += res["count"]
                 #aumentar linea
                 self.aumentarLinea()
+                tokenlex.append("Cierre")
                 tokenlist.append(">")
                 numtoken.append("214")
                 lexema.append("Colocacion-->")
+                tipo_error=""
+                linea_error=""
+                columna_error=""
+                token_error=""
+                desc_error=""
                 print("PROGRAMA LEÍDO CON EXITO")
                     
 
@@ -1154,20 +1431,20 @@ class Analizador:
                             <caption>Tabla de Errores</caption>
                             <thead>
                             <tr>
-                                <th>No.</th>
                                 <th>Tipo</th>
-                                <th>Lexema</th>
-                                <th>Fila</th>
+                                <th>Línea</th>
                                 <th>Columna</th>
+                                <th>Token esperado</th>
+                                <th>Descripción </th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                            <td>&nbsp;1</td>
-                            <td>&nbsp;Error</td>'''
-        cadena+="                        <td>&nbsp;"+lex+"</td>"
-        cadena+="                        <td>&nbsp;"+errorl+"</td>"
-        cadena+="                        <td>&nbsp;"+errorc+"</td>"
+                            <tr>'''
+        cadena+="                    <td>&nbsp;"+tipo_error+"</td>"
+        cadena+="                    <td>&nbsp;"+linea_error+"</td>"
+        cadena+="                        <td>&nbsp;"+columna_error+"</td>"
+        cadena+="                        <td>&nbsp;"+token_error+"</td>"
+        cadena+="                        <td>&nbsp;"+desc_error+"</td>"
         cadena+='''                    </tr>
                             </tbody>
                         </table>
@@ -1178,5 +1455,70 @@ class Analizador:
         r.writelines(cadena)
         doc_errores = 'Errores_202109715.html'
         webbrowser.open_new(doc_errores)
+
+
+    def htmltokens():
+        lex="1"
+        errorl="Error"
+        errorc=""
+        r = open("Tokens_202109715.html","w+",encoding="utf-8")
+        cadena="<!DOCTYPE html>\n"
+        cadena+= "<html lang=\"es\">\n"
+        cadena+= "  <head>\n"
+        cadena+="       <meta charset=\"UTF-8\">\n"
+        cadena+="       <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n"
+        cadena+="       <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+        cadena+="</head>\n"
+        cadena += "    <body>\n"
+        cadena+="<FONT FACE='arial'>"
+        cadena += '''   <center>
+                        <style>
+                            .demo {
+                                border:1px sólido #000000;
+                                border-collapse:colapso;
+                                padding:5px;
+                            }
+                            .demo th {
+                                border:1px sólido #000000;
+                                padding:5px;
+                                background:#F0F0F0;
+                            }
+                            .demo td {
+                                border:1px sólido #000000;
+                                padding:5px;
+                            }
+                        </style>
+                        <table class="demo">
+                            <caption>Tabla de Tokens</caption>
+                            <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Tipo</th>
+                                <th>     Lexema    </th>
+                            </tr>
+                            </thead>
+                            <tbody>'''
+        cont_num=1
+        cadena+=            "<tr>"
+        print("|"+"NO."+"|"+"  TOKEN  "+"|"+"LEXEMA")
+        for j,i in zip(tokenlex, tokenlist):
+            cadena+="          <tr>"
+            print("|"+str(cont_num)+"|"+j+"|"+i) 
+            cadena+="                        <td>"+str(cont_num)+"</td>"
+            cadena+="                        <td>"+j+"</td>"
+            cont_num+=1
+            cadena+="                        <td>&nbsp;"+i+"</td>"
+        
+        
+        cadena+='''          </tr>
+                            </tbody>
+                        </table>
+                        </center>'''
+        cadena+="</FONT>"
+        cadena +="    <body>\n"
+        cadena +="</html>\n"
+        r.writelines(cadena)
+        doc_tokens = 'Tokens_202109715.html'
+        webbrowser.open_new(doc_tokens)
 
 

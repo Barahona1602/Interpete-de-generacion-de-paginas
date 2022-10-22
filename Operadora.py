@@ -83,8 +83,8 @@ def nuevo():
 
 #Method to save file
 def guardar():
-    nuevoarchivo1=open(nombrearchivo+".txt","w+",encoding='utf-8')
-    nuevoarchivo1.writelines(cuadro.get("1.0","end-1c"))
+    archivo1=open(nombrearchivo,"w+",encoding='utf-8')
+    archivo1.writelines(cuadro.get("1.0","end-1c"))
 
 
 
@@ -145,7 +145,7 @@ def analizar():
 
 #Method to display tokens
 def tokens():
-    pass
+    Analizador.htmltokens()
 
 
 
@@ -182,7 +182,7 @@ def salirPro():
 
 #Command to show user manual
 def manualusuario():
-    manualuser = 'ManualDeUsuarioLFP_202109715_Proyecto1.pdf'
+    manualuser = 'ManualDeUsuarioLFP_202109715_Proyecto2.pdf'
     webbrowser.open_new(manualuser)
 
 
@@ -196,7 +196,7 @@ def manualusuario():
 
 #Command to show technical manual
 def manualtecnico():
-    manualtecnico = 'ManualTécnicoLFP_202109715_Proyecto1.pdf'
+    manualtecnico = 'ManualTécnicoLFP_202109715_Proyecto2.pdf'
     webbrowser.open_new(manualtecnico)
 
 
@@ -254,7 +254,7 @@ bttn_open_file = tk.Button(inicio, text="Abrir Archivo", width=13, height='2', f
 bttn_save = tk.Button(inicio, text="Guardar", width=13,height='2', font=fontStylebttn, command=guardar, fg="#30475E", bg="#DDDDDD").place(x=45, y=355)
 bttn_save_as = tk.Button(inicio, text="Guardar como",width=13,height='2', font=fontStylebttn, command=guardarcomo, fg="#30475E", bg="#DDDDDD").place(x=45, y=425)
 bttn_analyze = tk.Button(inicio, text="Generar Página",width=13,height='2', font=fontStylebttn, command=analizar, fg="#30475E", bg="#DDDDDD").place(x=45, y=495)
-bttn_tokens = tk.Button(inicio, text="Ver tokens",width=13,height='2', font=fontStylebttn, command=errores, fg="#30475E", bg="#DDDDDD").place(x=45, y=565)
+bttn_tokens = tk.Button(inicio, text="Ver tokens",width=13,height='2', font=fontStylebttn, command=tokens, fg="#30475E", bg="#DDDDDD").place(x=45, y=565)
 bttn_errors = tk.Button(inicio, text="Ver errores",width=13,height='2', font=fontStylebttn, command=errores, fg="#30475E", bg="#DDDDDD").place(x=45, y=635)
 bttn_exit = tk.Button(inicio, text="Salir", width=13,height='2', font=fontStylebttn, command=salirPro, fg="#30475E", bg="#DDDDDD").place(x=45, y=705)
 bttn_usermanual = tk.Button(inicio, text="Manual de usuario", width=15, font=fontStylebttn, command=manualusuario, fg="#30475E", bg="#DDDDDD").place(x=260, y=147)
