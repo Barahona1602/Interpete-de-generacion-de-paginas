@@ -27,22 +27,26 @@ class Analizador:
         global controles
         controles=[]
         global idlist
-        idlist=[]
+        idlist=["this"]
         global errores 
         errores=[]
         global tokenlex
         tokenlex=[]
+        global controles_list
+        controles_list=[]
+        global propiedades_list
+        propiedades_list=[]
+        global colocacion_list
+        colocacion_list=[]
+
         
 
 
 
     def aumentarLinea(self):
-        # _tmp = self.lista_cadena[self.linea]
-        # #print(_tmp , " == ", self.tmp_cadena)
-        # if _tmp == self.tmp_cadena:
-            self.linea += 1
-            self.tmp_cadena = ""
-            self.columna = 0 
+        self.linea += 1
+        self.tmp_cadena = ""
+        self.columna = 0 
 
     def verificarToken(self, entrada:str, token:str):
         count = 0
@@ -86,7 +90,7 @@ class Analizador:
     def verificarID(self, entrada:str):
         count = 0
         llave = False
-        alfabeto = ["A", "B", "C", "D", "E", "F", "G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z", "a", "b", "c", "d", "e", "f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z", "0", "1", "2", "3", "4","5","6","7","8","9", "_","(", ")",'"', ","]
+        alfabeto = ["A", "B", "C", "D", "E", "F", "G","H","I","J","K","L","M","N","Ñ","O","P","Q","R","S","T","U","V","W","X","Y","Z", "a", "b", "c", "d", "e", "f","g","h","i","j","k","l","m","n","ñ","o","p","q","r","s","t","u","v","w","x","y","z", "0", "1", "2", "3", "4","5","6","7","8","9", "_","(", ")",'"', ","]
         for i in entrada:
             llave = False
             for j in alfabeto:
@@ -272,9 +276,11 @@ class Analizador:
                         if res["result"] != None:
                             token = i
                             self.EstadoActual = "H"
+                            tmp_controles=[]
                             tokenlex.append("Tipo")
                             tokenlist.append(token)
                             controles.append(token)
+                            tmp_controles.append(token)
                             if token =="Etiqueta":
                                 numtoken.append("105")
                             elif token =="Boton":
@@ -336,12 +342,14 @@ class Analizador:
                 self.EstadoActual = "J"
                 tokenlex.append("ID")
                 tokenlist.append(id)
+                tmp_controles.append(id)
                 numtoken.append(str(cont_numtoken))
                 lexema.append(token+" "+id+";")
                 lexema.append(token+" "+id+";")
                 lexema.append(token+" "+id+";")
                 idlist.append(id)
                 cont_numtoken+=1
+                controles_list.append(tmp_controles)
 
 
                 
@@ -712,7 +720,6 @@ class Analizador:
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
-                idlist.append(id2)
                 cont_numvalor+=1
 
 
@@ -1011,6 +1018,28 @@ class Analizador:
                 cadena = self.comentariomultilinea(cadena)
                 token = "setPosicion"
                 res = self.verificarToken(cadena, token)
+                if res["result"] == None:
+                    token="add"
+                    res = self.verificarToken(cadena, token)
+                    if res["result"] != None:
+                        id = token
+                        self.EstadoActual = "PP"
+                        tokenlex.append("Add")
+                        tokenlist.append("add")
+                        print( self.linea, " | ", self.columna," | ",  id)
+                        cadena = res["result"]
+                        self.columna += res["count"]
+                else:
+                    print( self.linea, " | ", self.columna," | ",  token)
+                    cadena = res["result"]
+                    self.columna += res["count"]
+                    self.EstadoActual = "KK"
+                    tokenlex.append("Set")
+                    tokenlist.append("setPosicion")
+                    numtoken.append("306")
+                        
+
+
                 #VERIFICAR ERROR
                 if res["result"] == None:
                     tipo_error="Léxico"
@@ -1020,13 +1049,7 @@ class Analizador:
                     desc_error="Se esperaba "+token+" pero no se obtuvo"
                     print("ERROR JJ")
                     break
-                print( self.linea, " | ", self.columna," | ",  token)
-                cadena = res["result"]
-                self.columna += res["count"]
-                self.EstadoActual = "KK"
-                tokenlex.append("Set")
-                tokenlist.append("setPosicion")
-                numtoken.append("306")
+                
                 
 
 
@@ -1057,7 +1080,6 @@ class Analizador:
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
-                idlist.append(id2)
                 cont_numvalor+=1
 
 
@@ -1088,6 +1110,8 @@ class Analizador:
                 numtoken.append("307")
 
 
+
+
             elif self.EstadoActual == "MM":
                 cadena = self.comentariomultilinea(cadena)
                 token = "Colocacion"
@@ -1095,7 +1119,7 @@ class Analizador:
                
                 if res["result"] == None:
                     tokens = idlist
-                    tokens.append("this")
+                    # tokens.append("this")
                     
                     for i in tokens:
                         res = self.verificarToken(cadena, i)
@@ -1150,40 +1174,60 @@ class Analizador:
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
-                self.EstadoActual = "OO"
+                self.EstadoActual = "JJ"
                 tokenlex.append("Punto")
                 tokenlist.append(".")
                 numtoken.append("305")
 
 
-
+                
 
             elif self.EstadoActual == "OO":
                 cadena = self.comentariomultilinea(cadena)
-                token = "add"
+                token = "add" 
                 res = self.verificarToken(cadena, token)
+               
                 if res["result"] == None:
-                    tipo_error="Léxico"
-                    linea_error=str(self.linea)
-                    columna_error=str(self.columna)
-                    token_error=str(token)
-                    desc_error="Se esperaba "+token+" pero no se obtuvo"
-                    self.EstadoActual = "JJ"
+                    tokens = idlist
+                    # tokens.append("this")
+                    
+                    for i in tokens:
+                        res = self.verificarToken(cadena, i)
+                        if res["result"] != None:
+                            id = i
+                            tokenlex.append("ID")
+                            tokenlist.append(id)
+                            numtoken.append(str(cont_numtoken2))
+                            cont_numtoken2+=1
+                            self.EstadoActual = "II"
+                            print( self.linea, " | ", self.columna," | ",  id)
+                            cadena = res["result"]
+                            self.columna += res["count"]
+                            break
                 else:
                     print( self.linea, " | ", self.columna," | ",  token)
                     cadena = res["result"]
                     self.columna += res["count"]
                     self.EstadoActual = "PP"
-                    tokenlex.append("Add")
-                    tokenlist.append("add")
+                    tokenlex.append("Set")
+                    tokenlist.append("setPosicion")
                     numtoken.append("306")
-
-                # #VERIFICAR ERROR
-                # if res["result"] == None:
-                #     print("ERROR OO")
-                #     break
                 
                 
+                #VERIFICAR ERROR
+                if res["result"] == None:
+                    token="Colocacion"
+                    res = self.verificarToken(cadena, token)
+                    if res["result"] != None:
+                        self.EstadoActual="HH"
+                    else:
+                        tipo_error="Léxico"
+                        linea_error=str(self.linea)
+                        columna_error=str(self.columna)
+                        token_error=str(token)
+                        desc_error="Se esperaba "+token+" pero no se obtuvo"
+                        print("ERROR OO")
+                    
 
 
 
@@ -1197,8 +1241,8 @@ class Analizador:
                     tipo_error="Léxico"
                     linea_error=str(self.linea)
                     columna_error=str(self.columna)
-                    token_error=str(token)
-                    desc_error="Se esperaba "+token+" pero no se obtuvo"
+                    token_error=str(";")
+                    desc_error="Se esperaba ; pero no se obtuvo"
                     print("ERROR PP")
                     break
                 cadena = self.quitar(cadena, id2)
@@ -1213,7 +1257,6 @@ class Analizador:
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
-                idlist.append(id2)
                 cont_numvalor+=1
 
 
@@ -1231,12 +1274,12 @@ class Analizador:
                     columna_error=str(self.columna)
                     token_error=str(token)
                     desc_error="Se esperaba "+token+" pero no se obtuvo"
-                    print("ERROR LL")
+                    print("ERROR QQ")
                     break
                 print( self.linea, " | ", self.columna," | ",  token)
                 cadena = res["result"]
                 self.columna += res["count"]
-                self.EstadoActual = "HH"
+                self.EstadoActual = "OO"
                 #aumentar linea
                 self.aumentarLinea()
                 tokenlex.append("Punto y Coma")

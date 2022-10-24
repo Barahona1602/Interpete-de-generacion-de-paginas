@@ -1,3 +1,4 @@
+from http.client import LineTooLong
 from tkinter import *
 import webbrowser
 import tkinter as tk
@@ -26,7 +27,7 @@ def abrirArchivo():
         cuadro.delete("1.0","end")
         try:  
             global archivo1   
-            archivo1 = filedialog.askopenfilename(title="Abrir archivo", initialdir="C:/", filetypes=(("gpw files",".gpw"),("Todos los archivos",".*")))
+            archivo1 = filedialog.askopenfilename(title="Abrir archivo", initialdir="C:/", filetypes=(("gpw files",".gpw"),("All files",".*")))
         except:
             print("No se agregaron archivos")
             global nombrearchivo
@@ -35,6 +36,8 @@ def abrirArchivo():
         nombrearchivo=nombrearchivo.replace(".html","")
         Datos = open(archivo1, "r", encoding='utf-8')
         for line in Datos:
+            if line=="":
+                line=line.replace("\n","n")
             cuadro.insert(END,line)
         
 
