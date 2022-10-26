@@ -26,6 +26,7 @@
     AreaTexto areatexto1;
 
     Boton boton1;
+    Boton boton2;
 
 Controles -->
 
@@ -83,10 +84,10 @@ Controles -->
     radio3.setGrupo(radiusGroup);
     radio3.setTexto("Otro");
 
-    etiqueta4.setAncho(200);
-    etiqueta4.setAlto(10);
-    etiqueta4.setColorLetra(17,0,255);
-    etiqueta4.setTexto("JORNADA");
+    etiqueta5.setAncho(200);
+    etiqueta5.setAlto(10);
+    etiqueta5.setColorLetra(17,0,255);
+    etiqueta5.setTexto("JORNADA");
 
     checkbox1.setMarcada(true);
     checkbox1.setTexto("Matutina");
@@ -97,6 +98,10 @@ Controles -->
     areatexto1.setTexto("Calificacion del proyecto 2 del curso de Lenguajes de programacion");
 
     boton1.setTexto("Enviar formualrio");
+    boton1.setAlineacion(Centro);
+
+    boton2.setTexto("Enviar formualrio2");
+    boton2.setAlineacion(Derecho);
 
 propiedades -->
 

@@ -3,6 +3,7 @@ from lib2to3.pgen2 import token
 import re
 import math
 import webbrowser
+from xml.dom.pulldom import PROCESSING_INSTRUCTION
 
 
 
@@ -587,7 +588,9 @@ class Analizador:
                     for i in tokens:
                         res = self.verificarToken(cadena, i)
                         if res["result"] != None:
+                            tmp_propiedades=[]
                             id = i
+                            tmp_propiedades.append(id)
                             tokenlex.append("ID")
                             tokenlist.append(id)
                             numtoken.append(str(cont_numtoken2))
@@ -658,6 +661,7 @@ class Analizador:
                         token = i
                         self.EstadoActual = "H"
                         tokenlex.append("Set")
+                        tmp_propiedades.append(token)
                         tokenlist.append(token)
                         controles.append(token)
                         if token =="setColorFondo":
@@ -720,6 +724,8 @@ class Analizador:
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
+                tmp_propiedades.append(id2)
+                propiedades_list.append(tmp_propiedades)
                 cont_numvalor+=1
 
 
@@ -956,10 +962,13 @@ class Analizador:
                     for i in tokens:
                         res = self.verificarToken(cadena, i)
                         if res["result"] != None:
+                            tmp_colocacion=[]
                             id = i
                             tokenlex.append("ID")
                             tokenlist.append(id)
+                            tmp_colocacion.append(id)
                             numtoken.append(str(cont_numtoken2))
+
                             cont_numtoken2+=1
                             self.EstadoActual = "II"
                             print( self.linea, " | ", self.columna," | ",  id)
@@ -1026,12 +1035,14 @@ class Analizador:
                         self.EstadoActual = "PP"
                         tokenlex.append("Add")
                         tokenlist.append("add")
+                        tmp_colocacion.append(token)
                         print( self.linea, " | ", self.columna," | ",  id)
                         cadena = res["result"]
                         self.columna += res["count"]
                 else:
                     print( self.linea, " | ", self.columna," | ",  token)
                     cadena = res["result"]
+                    tmp_colocacion.append(token)
                     self.columna += res["count"]
                     self.EstadoActual = "KK"
                     tokenlex.append("Set")
@@ -1080,6 +1091,8 @@ class Analizador:
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
+                tmp_colocacion.append(id2)
+                colocacion_list.append(tmp_colocacion)
                 cont_numvalor+=1
 
 
@@ -1119,7 +1132,6 @@ class Analizador:
                
                 if res["result"] == None:
                     tokens = idlist
-                    # tokens.append("this")
                     
                     for i in tokens:
                         res = self.verificarToken(cadena, i)
@@ -1128,6 +1140,8 @@ class Analizador:
                             tokenlex.append("ID")
                             tokenlist.append(id)
                             numtoken.append(str(cont_numtoken2))
+                            tmp_colocacion=[]
+                            tmp_colocacion.append(id)
                             cont_numtoken2+=1
                             self.EstadoActual = "NN"
                             print( self.linea, " | ", self.columna," | ",  id)
@@ -1189,14 +1203,15 @@ class Analizador:
                
                 if res["result"] == None:
                     tokens = idlist
-                    # tokens.append("this")
                     
                     for i in tokens:
                         res = self.verificarToken(cadena, i)
                         if res["result"] != None:
                             id = i
+                            tmp_colocacion=[]
                             tokenlex.append("ID")
                             tokenlist.append(id)
+                            tmp_colocacion.append(id)
                             numtoken.append(str(cont_numtoken2))
                             cont_numtoken2+=1
                             self.EstadoActual = "II"
@@ -1208,6 +1223,7 @@ class Analizador:
                     print( self.linea, " | ", self.columna," | ",  token)
                     cadena = res["result"]
                     self.columna += res["count"]
+                    tmp_colocacion.append(token)
                     self.EstadoActual = "PP"
                     tokenlex.append("Set")
                     tokenlist.append("setPosicion")
@@ -1257,6 +1273,8 @@ class Analizador:
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
                 lexema.append(id+"."+token+id2+";")
+                tmp_colocacion.append(id2)
+                colocacion_list.append(tmp_colocacion)
                 cont_numvalor+=1
 
 
@@ -1366,6 +1384,11 @@ class Analizador:
                 token_error=""
                 desc_error=""
                 print("PROGRAMA LEÍDO CON EXITO")
+                # print(propiedades_list)
+                # print(controles_list)
+                # for i in colocacion_list:
+                #     print(i)
+                
                     
 
     def compile(self):
@@ -1383,6 +1406,7 @@ class Analizador:
             i = i.replace('\n', '') # QUITANDO SALTOS DE LINEA
             i= i.replace("(","")
             i= i.replace(")","")
+            i= i.replace('"',"")
             if i != '':
                 nueva_cadena += i
                 lista_cadena.append(i)
@@ -1397,45 +1421,557 @@ class Analizador:
 
 
     
-    # def htmlanalizar():
 
-    #     for j in contenido:
-    #         if j!="":
-    #             lista_cadena.append(j)
+    def htmlanalizar():
+        controles_html=[]
+        contenedor_lista=[]
+        for i in controles_list:
+            if i[0]=="Contenedor":
+                print("Contenedor encontrado con id"+i[1])
+                contenedor_lista.append(i[1])
 
-    #     r=0
+            elif i[0]=="Etiqueta":
+                for j in propiedades_list:
+                    if j[0]==i[1] and j[1]=="setTexto":
+                        tmp_html=[]
+                        tmp_etiqueta=('<label id="'+i[1]+'">'+j[2]+'</label>')
+                        tmp_html.append(i[1])
+                        tmp_html.append(tmp_etiqueta)
+                        controles_html.append(tmp_html)
+                        
+            
+            elif i[0]=="Boton":
+                tmp_alineacion="left"
+                tmp_texto=""
+                for j in propiedades_list:
+                    tmp_html=[]
+                    tmp_botones=[]
+                    if j[0]==i[1]:
+                        if j[1]=="setTexto":
+                            tmp_texto=j[2]
+                            tmp_botones.append(tmp_texto)
+
+                    if j[0]==i[1] and j[1]=="setAlineacion":
+                        if j[2]=="Centro":    
+                            tmp_alineacion="center"
+                        elif j[2]=="Izquierdo":
+                            tmp_alineacion="left"
+                        elif j[2]=="Derecho":
+                            tmp_alineacion="right"
+
+                tmp_boton=('<input type="submit" id="'+i[1]+'" value="'+tmp_texto+'" style="text-align:'+tmp_alineacion+'"/>')
+                tmp_html.append(i[1])
+                tmp_html.append(tmp_boton)
+                controles_html.append(tmp_html)
+            
+            
+
+
+            elif i[0]=="Check":
+                tmp_texto=""
+                for j in propiedades_list:
+                    tmp_html=[]
+                    tmp_check=[]
+                    if j[0]==i[1]:
+                        if j[1]=="setTexto":
+                            tmp_texto=j[2]
+                            tmp_check.append(tmp_texto)
+
+                    if j[0]==i[1] and j[1]=="setMarcada":
+                        if j[2]=="true":    
+                            tmp_marca="checked"
+                        else:
+                            tmp_marca=""
+
+                tmp_check=('<input type="checkbox" id="'+i[1]+'" '+tmp_marca+'/>'+tmp_texto)
+                tmp_html.append(i[1])
+                tmp_html.append(tmp_check)
+                controles_html.append(tmp_html)
+
+            elif i[0]=="RadioBoton":
+                tmp_texto=""
+                for j in propiedades_list:
+                    tmp_html=[]
+                    tmp_radio=[]
+
+                    if j[0]==i[1]:
+                        if j[1]=="setTexto":
+                            tmp_texto=j[2]
+                            tmp_radio.append(tmp_texto)
+
+                    if j[0]==i[1]:
+                        if j[1]=="setGrupo":
+                            tmp_grupo=j[2]
+                            tmp_radio.append(tmp_grupo)
+
+                    if j[0]==i[1] and j[1]=="setMarcada":
+                        if j[2]=="true":    
+                            tmp_marca="checked"
+                        else:
+                            tmp_marca=""
+
+                tmp_radio=('<input type="radio" name='+tmp_grupo+ ' id="'+i[1]+'" '+tmp_marca+'/>'+tmp_texto)
+                tmp_html.append(i[1])
+                tmp_html.append(tmp_radio)
+                controles_html.append(tmp_html)
+
+            elif i[0]=="Texto":
+                tmp_alineacion="left"
+                tmp_texto=""
+                for j in propiedades_list:
+                    tmp_html=[]
+                    
+                    if j[0]==i[1]:
+                        if j[1]=="setTexto":
+                            tmp_texto=j[2]
+                            
+
+                    if j[0]==i[1] and j[1]=="setAlineacion":
+                        if j[2]=="Centro":    
+                            tmp_alineacion="center"
+                        elif j[2]=="Izquierdo":
+                            tmp_alineacion="left"
+                        elif j[2]=="Derecho":
+                            tmp_alineacion="right"
+
+                tmp_text=('<input type="text" id="'+i[1]+'" value="'+tmp_texto+'" style="text-align:'+tmp_alineacion+'"/>')
+                tmp_html.append(i[1])
+                tmp_html.append(tmp_text)
+                controles_html.append(tmp_html)
+
+            elif i[0]=="AreaTexto":
+                for j in propiedades_list:
+                    if j[0]==i[1] and j[1]=="setTexto":
+                        tmp_html=[]
+                        tmp_etiqueta=('<TEXTAREA id="'+i[1]+'">'+j[2]+'</TEXTAREA>')
+                        tmp_html.append(i[1])
+                        tmp_html.append(tmp_etiqueta)
+                        controles_html.append(tmp_html)
+
+            elif i[0]=="Clave":
+                tmp_alineacion="left"
+                tmp_texto=""
+                for j in propiedades_list:
+                    tmp_html=[]
+                    
+                    if j[0]==i[1]:
+                        if j[1]=="setTexto":
+                            tmp_texto=j[2]
         
-    #     #hola=colortz[1]
 
-    #     for x in range(len(lista_cadena)):
+                    if j[0]==i[1] and j[1]=="setAlineacion":
+                        if j[2]=="Centro":    
+                            tmp_alineacion="center"
+                        elif j[2]=="Izquierdo":
+                            tmp_alineacion="left"
+                        elif j[2]=="Derecho":
+                            tmp_alineacion="right"
 
-    #         if lista_cadena[x]=="<Texto>\n":
-    #             nueva=lista_cadena[x+1]
-    #             r=2
-    #             while lista_cadena[x+r]!="</Texto>\n":
-    #                 nueva+='<p style=color:'+hola+';font-size:'+tamañoletra[1]+'px;>'+lista_cadena[x+r]+"</p>\n"
-    #                 r+=1
+                tmp_clave=('<input type="password" id="'+i[1]+'" value="'+tmp_texto+'" style="text-align:'+tmp_alineacion+'"/>')
+                tmp_html.append(i[1])
+                tmp_html.append(tmp_clave)
+                controles_html.append(tmp_html)
 
-    #     titulo="Hola"
-    #     r = open("Resultados_202109715.html","w+",encoding="utf-8")
-    #     cadena="<!DOCTYPE html>\n"
-    #     cadena+= "<html lang=\"es\">\n"
-    #     cadena+= "  <head>\n"
-    #     cadena+="       <meta charset=\"UTF-8\">\n"
-    #     cadena+="       <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n"
-    #     cadena+="       <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-    #     cadena+="</head>\n"
-    #     cadena += "    <body>\n"
-    #     cadena += '         <h1 style=color:'+colortz[0]+';font-size:'+tamañoletra[0]+'px;>'+"<center>"+"<FONT FACE='arial'>"+titulo+"</center>"+"</FONT>"+"</h1>\n"
-    #     cadena += '         <p style=color:'+colortz[1]+';font-size:'+tamañoletra[1]+'px;>'+"<FONT FACE='arial'>"+nueva+"</FONT>"+"</p>\n"
-    #     for i in result:
-    #         cadena +='          <p style="color:'+colortz[2]+';font-size:10px;">'+"<FONT FACE='arial'>"+str(i)+"</p>\n"
-    #     cadena +="    <body>\n"
-    #     cadena +="</html>\n"
-    #     r.writelines(cadena)
-    #     doc_analizador = 'Resultados_202109715.html'
-    #     webbrowser.open_new(doc_analizador)
+
+        cadena=""
+        listaFinal=[]
+        for i in controles_list:
+            if i[0]=="Contenedor":
+                list_tmp=[]
+                #cadena+='<div id="'+i[1]+'>'
+                for j in colocacion_list:
+                    if j[1]=="add" and i[1]==j[0]:
+                        
+                        for k in controles_html:
+                            tmp_colocacion=[]
+                            
+                            if j[2]==k[0]:
+                                cadena2=k[1]
+                                tmp_colocacion.append(cadena2)
+                                cadena+=cadena2
+                #cadena+="</div>"
+                list_tmp.append(i[1])
+                list_tmp.append('<div id="'+i[1]+'>')
+                list_tmp.append(cadena)
+                list_tmp.append("</div>")
+                listaFinal.append(list_tmp)
+
+                            
+                            # for p in tmp_colocacion:
+                            #     cadena+=p
+
+        # j = [this, add, contenedor1]
+        # j = [contenedor1, add, contenedor2]
+        # i = [contenedor1, div, lexema, div]
+        # i = [contenedor2, div, lexema, div]
+          
+        # for i in listaFinal:   
+        #     print("------------------------------")
+        #     print(i)
+        #     for j in colocacion_list:
+        #         if i[0]==j[2] and j[1]=="add":
+                    
+
+
+        # cadena=[]
+        # cadena2=""
+        # i = contenedor1
+        # j = [this, add, contenedor1]
+        # j = [contenedor1, add, contenedor2]
+        # k = [contenedor1, lexema]
+        # k = [contenedor2, lexema]
+        # j[1] =
+        # for i in contenedor_lista:
+        #     for j in colocacion_list:
+        #         for k in listaFinal:
+        #             if "this"==j[0]:
+        #                     if i==k[0]:
+        #                         print(j)
+        #                         print(i)
+        #                         cadena.append('<div id="'+i+'>')
+        #                         cadena.append(k[1])
+        #                         break
+                # if i ==j[0]:
+                #     for k in listaFinal:
+                #         if j[2]==k[0]:
+                #             cadena2+='<div id="'+j[2]+'>'
+                #             cadena2+=(k[1])
+                #             if 
+                #             cadena2+="</div>"
+                #             cadena.append(cadena2)
+        # for i in cadena:
+        #     print(i)                   
+        # for i in controles_html:
+        #     print(i[1])
+
+
+        r = open("archivo.html","w+",encoding="utf-8")
+        cadena="<!DOCTYPE html>\n"
+        cadena+= "<html lang=\"es\">\n"
+        cadena+= "  <head>\n"
+        cadena+='<link href="prueba.css" rel="stylesheet"'
+        cadena+= ' type="text/css" />'
+        # cadena+="       <meta charset=\"UTF-8\">\n"
+        # cadena+="       <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n"
+        # cadena+="       <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+        cadena+="</head>\n"
+        cadena += "    <body>\n"
+        for i in controles_list:
+            if i[0]=="Contenedor":
+                cadena+=('<div id="'+i[1]+'">')
+                for j in colocacion_list:
+                    if j[1]=="add" and i[1]==j[0]:
+                        
+                        for k in controles_html:
+                            tmp_colocacion=[]
+                            
+                            if j[2]==k[0]:
+                                cadena2=k[1]
+                                tmp_colocacion.append(cadena2)
+                                cadena+=(cadena2)
+                cadena+=("</div>")
+        cadena +="    </body>\n"
+        cadena +="</html>\n"
+        r.writelines(cadena)
+        doc_analizador = 'archivo.html'
+        webbrowser.open_new(doc_analizador)
         
+    def css():
+        r = open("prueba.css","w+",encoding="utf-8")
+        cadena=""
+        css_list=[] 
+        for i in controles_list:
+            setColorFondo=""
+            setPosicion=""
+            setAncho=""
+            setAlto=""
+            setColorLetra=""
+            setTamañoLetra=""
+            if i[0]=="Etiqueta":
+                for j in colocacion_list:
+                    if j[1]=="setPosicion" and i[1]==j[0]:
+                        tmp_posicion=j[2]
+                        posicion = tmp_posicion.split(",")
+                        x = posicion[0]
+                        y = posicion[1]
+                        setPosicion=('\n position:absolute; \n left: '+x+'px; \n top:'+y+'px; \n')
+                for k in propiedades_list:
+                    if k[1]=="setAncho" and i[1]==k[0]:
+                        setAncho = ('\n width : '+k[2]+'px;')
+                    if k[1]=="setAlto" and i[1]==k[0]:
+                        setAlto = ('\n height : '+k[2]+'px;')
+                    if k[1]=="setColorFondo" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorFondo = ('\n background-color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    if k[1]=="setColorLetra" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorLetra = ('\n color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    setTamañoLetra=('\n font-size: 12px;')
+                    
+
+                
+                
+                css_list.append('#'+i[1]+'{'+setPosicion+ setAncho+setAlto+setColorFondo+setColorLetra+setTamañoLetra+'\n}')
+
+                
+
+            
+            elif i[0]=="Boton":
+                for j in colocacion_list:
+                    if j[1]=="setPosicion" and i[1]==j[0]:
+                        tmp_posicion=j[2]
+                        posicion = tmp_posicion.split(",")
+                        x = posicion[0]
+                        y = posicion[1]
+                        setPosicion=('\n position:absolute; \n left: '+x+'px; \n top:'+y+'px; \n')
+                for k in propiedades_list:
+                    if k[1]=="setAncho" and i[1]==k[0]:
+                        setAncho = ('\n width : '+k[2]+'px;')
+                    if k[1]=="setAlto" and i[1]==k[0]:
+                        setAlto = ('\n height : '+k[2]+'px;')
+                    if k[1]=="setColorFondo" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorFondo = ('\n background-color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    if k[1]=="setColorLetra" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorLetra = ('\n color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    setTamañoLetra=('\n font-size: 12px;')
+                    
+
+                
+                
+                css_list.append('#'+i[1]+'{'+setPosicion+ setAncho+setAlto+setColorFondo+setColorLetra+setTamañoLetra+'\n}')
+
+
+            elif i[0]=="Check":
+                for j in colocacion_list:
+                    if j[1]=="setPosicion" and i[1]==j[0]:
+                        tmp_posicion=j[2]
+                        posicion = tmp_posicion.split(",")
+                        x = posicion[0]
+                        y = posicion[1]
+                        setPosicion=('\n position:absolute; \n left: '+x+'px; \n top:'+y+'px; \n')
+                for k in propiedades_list:
+                    if k[1]=="setAncho" and i[1]==k[0]:
+                        setAncho = ('\n width : '+k[2]+'px;')
+                    if k[1]=="setAlto" and i[1]==k[0]:
+                        setAlto = ('\n height : '+k[2]+'px;')
+                    if k[1]=="setColorFondo" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorFondo = ('\n background-color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    if k[1]=="setColorLetra" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorLetra = ('\n color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    setTamañoLetra=('\n font-size: 12px;')
+                    
+
+                
+                
+                css_list.append('#'+i[1]+'{'+setPosicion+ setAncho+setAlto+setColorFondo+setColorLetra+setTamañoLetra+'\n}')
+
+            elif i[0]=="RadioBoton":
+                for j in colocacion_list:
+                    if j[1]=="setPosicion" and i[1]==j[0]:
+                        tmp_posicion=j[2]
+                        posicion = tmp_posicion.split(",")
+                        x = posicion[0]
+                        y = posicion[1]
+                        setPosicion=('\n position:absolute; \n left: '+x+'px; \n top:'+y+'px; \n')
+                for k in propiedades_list:
+                    if k[1]=="setAncho" and i[1]==k[0]:
+                        setAncho = ('\n width : '+k[2]+'px;')
+                    if k[1]=="setAlto" and i[1]==k[0]:
+                        setAlto = ('\n height : '+k[2]+'px;')
+                    if k[1]=="setColorFondo" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorFondo = ('\n background-color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    if k[1]=="setColorLetra" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorLetra = ('\n color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    setTamañoLetra=('\n font-size: 12px;')
+                    
+
+                
+                
+                css_list.append('#'+i[1]+'{'+setPosicion+ setAncho+setAlto+setColorFondo+setColorLetra+setTamañoLetra+'\n}')
+
+            elif i[0]=="Texto":
+                for j in colocacion_list:
+                    if j[1]=="setPosicion" and i[1]==j[0]:
+                        tmp_posicion=j[2]
+                        posicion = tmp_posicion.split(",")
+                        x = posicion[0]
+                        y = posicion[1]
+                        setPosicion=('\n position:absolute; \n left: '+x+'px; \n top:'+y+'px; \n')
+                for k in propiedades_list:
+                    if k[1]=="setAncho" and i[1]==k[0]:
+                        setAncho = ('\n width : '+k[2]+'px;')
+                    if k[1]=="setAlto" and i[1]==k[0]:
+                        setAlto = ('\n height : '+k[2]+'px;')
+                    if k[1]=="setColorFondo" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorFondo = ('\n background-color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    if k[1]=="setColorLetra" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorLetra = ('\n color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    setTamañoLetra=('\n font-size: 12px;')
+                    
+
+                
+                
+                css_list.append('#'+i[1]+'{'+setPosicion+ setAncho+setAlto+setColorFondo+setColorLetra+setTamañoLetra+'\n}')
+
+            elif i[0]=="AreaTexto":
+                for j in colocacion_list:
+                    if j[1]=="setPosicion" and i[1]==j[0]:
+                        tmp_posicion=j[2]
+                        posicion = tmp_posicion.split(",")
+                        x = posicion[0]
+                        y = posicion[1]
+                        setPosicion=('\n position:absolute; \n left: '+x+'px; \n top:'+y+'px; \n')
+                for k in propiedades_list:
+                    if k[1]=="setAncho" and i[1]==k[0]:
+                        setAncho = ('\n width : '+k[2]+'px;')
+                    if k[1]=="setAlto" and i[1]==k[0]:
+                        setAlto = ('\n height : '+k[2]+'px;')
+                    if k[1]=="setColorFondo" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorFondo = ('\n background-color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    if k[1]=="setColorLetra" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorLetra = ('\n color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    setTamañoLetra=('\n font-size: 12px;')
+                    
+
+                
+                
+                css_list.append('#'+i[1]+'{'+setPosicion+ setAncho+setAlto+setColorFondo+setColorLetra+setTamañoLetra+'\n}')
+
+            elif i[0]=="Clave":
+                for j in colocacion_list:
+                    if j[1]=="setPosicion" and i[1]==j[0]:
+                        tmp_posicion=j[2]
+                        posicion = tmp_posicion.split(",")
+                        x = posicion[0]
+                        y = posicion[1]
+                        setPosicion=('\n position:absolute; \n left: '+x+'px; \n top:'+y+'px; \n')
+                for k in propiedades_list:
+                    if k[1]=="setAncho" and i[1]==k[0]:
+                        setAncho = ('\n width : '+k[2]+'px;')
+                    if k[1]=="setAlto" and i[1]==k[0]:
+                        setAlto = ('\n height : '+k[2]+'px;')
+                    if k[1]=="setColorFondo" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorFondo = ('\n background-color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    if k[1]=="setColorLetra" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorLetra = ('\n color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    setTamañoLetra=('\n font-size: 12px;')
+                    
+
+                
+                
+                css_list.append('#'+i[1]+'{'+setPosicion+ setAncho+setAlto+setColorFondo+setColorLetra+setTamañoLetra+'\n}')
+
+            elif i[0]=="Contenedor":
+                for j in colocacion_list:
+                    if j[1]=="setPosicion" and i[1]==j[0]:
+                        tmp_posicion=j[2]
+                        posicion = tmp_posicion.split(",")
+                        x = posicion[0]
+                        y = posicion[1]
+                        setPosicion=('\n position:absolute; \n left: '+x+'px; \n top:'+y+'px; \n')
+                for k in propiedades_list:
+                    if k[1]=="setAncho" and i[1]==k[0]:
+                        setAncho = ('\n width : '+k[2]+'px;')
+                    if k[1]=="setAlto" and i[1]==k[0]:
+                        setAlto = ('\n height : '+k[2]+'px;')
+                    if k[1]=="setColorFondo" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorFondo = ('\n background-color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    if k[1]=="setColorLetra" and i[1]==k[0]:
+                        tmp_bgcolor=k[2]
+                        bgcolor = tmp_bgcolor.split(",")
+                        bg1 = bgcolor[0]
+                        bg2 = bgcolor[1]
+                        bg3 = bgcolor[2]
+                        setColorLetra = ('\n color: rgb'+'('+bg1+','+bg2+','+bg3+');')
+                    setTamañoLetra=('\n font-size: 12px;')
+                    
+
+                
+                
+                css_list.append('#'+i[1]+'{'+setPosicion+ setAncho+setAlto+setColorFondo+setColorLetra+setTamañoLetra+'\n}')
+
+        for l in css_list:
+            cadena+=l 
+
+        r.writelines(cadena)
+        doc_css = 'prueba.css'
+        webbrowser.open_new(doc_css)
+
+
+
  
 
 
