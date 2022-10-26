@@ -1427,7 +1427,6 @@ class Analizador:
         contenedor_lista=[]
         for i in controles_list:
             if i[0]=="Contenedor":
-                print("Contenedor encontrado con id"+i[1])
                 contenedor_lista.append(i[1])
 
             elif i[0]=="Etiqueta":
@@ -1577,9 +1576,12 @@ class Analizador:
         listaFinal=[]
         for i in controles_list:
             if i[0]=="Contenedor":
-                list_tmp=[]
-                #cadena+='<div id="'+i[1]+'>'
+                
                 for j in colocacion_list:
+                    list_tmp=[]
+                    #cadena+='<div id="'+i[1]+'>'
+                    list_tmp.append(i[1])
+                    list_tmp.append('<div id="'+i[1]+'>')
                     if j[1]=="add" and i[1]==j[0]:
                         
                         for k in controles_html:
@@ -1589,60 +1591,70 @@ class Analizador:
                                 cadena2=k[1]
                                 tmp_colocacion.append(cadena2)
                                 cadena+=cadena2
-                #cadena+="</div>"
-                list_tmp.append(i[1])
-                list_tmp.append('<div id="'+i[1]+'>')
                 list_tmp.append(cadena)
+                #cadena+="</div>"
                 list_tmp.append("</div>")
+                
                 listaFinal.append(list_tmp)
+
+
+        listaDef=[]
+        for i in listaFinal:
+            listaDef.append(i)
 
                             
                             # for p in tmp_colocacion:
                             #     cadena+=p
 
-        # j = [this, add, contenedor1]
-        # j = [contenedor1, add, contenedor2]
-        # i = [contenedor1, div, lexema, div]
-        # i = [contenedor2, div, lexema, div]
+
+        # i = [contenedor1, contenedor2, contenedor3, contenedor4, contenedor5]
+        # j = [[this, add, contenedor1], [contenedor1, add, contenedor2], [contenedor1, add, contenedor3], [contenedor3, add, contenedor4]]
+        # k = [[contenedor1, div, lexema, div], [contenedor2, div, lexema, div], [contenedor3, div, lexema, div], [contenedor4, div, lexema, div]]
+        #------------------------------------------------------------
+
+
+        # tmp_cont=""
+        
+        # for i in contenedor_lista:
+        #     for j in colocacion_list:
+        #         if i==j[2] and j[1]=="add":
+        #             contadora=0
+        #             print("Contenedor incial: "+i)
+        #             for k in listaFinal:
+        #                 if j[0]==k[0]:
+        #                     tmp_cont=k[0]
+        #                     print("El valor de k: "+tmp_cont)
+        #                 contadora+=1
+        #                 print(contadora)
+        #                 for k in listaFinal:
+        #                     if j[2]==k[0]:
+        #                         print("El valor j"+j[2])
+        #                         for m in listaFinal:
+        #                             if m[0]==tmp_cont:
+        #                                 print("El valor m"+m[0])
+        #                                 print(contadora)
+        #                                 print(m[0])
+        #                                 divF=k[3]
+        #                                 lex=k[2]
+        #                                 divI=k[1]
+        #                                 print(divF)
+        #                                 print(lex)
+        #                                 print(divI)
+        #                                 listaDef.insert(contadora+1, divF)
+        #                                 listaDef.insert(contadora+1, lex)
+        #                                 listaDef.insert(contadora+1, divI)
+
+
+        
+
           
-        # for i in listaFinal:   
+        # for i in listaDef:   
         #     print("------------------------------")
         #     print(i)
         #     for j in colocacion_list:
         #         if i[0]==j[2] and j[1]=="add":
                     
 
-
-        # cadena=[]
-        # cadena2=""
-        # i = contenedor1
-        # j = [this, add, contenedor1]
-        # j = [contenedor1, add, contenedor2]
-        # k = [contenedor1, lexema]
-        # k = [contenedor2, lexema]
-        # j[1] =
-        # for i in contenedor_lista:
-        #     for j in colocacion_list:
-        #         for k in listaFinal:
-        #             if "this"==j[0]:
-        #                     if i==k[0]:
-        #                         print(j)
-        #                         print(i)
-        #                         cadena.append('<div id="'+i+'>')
-        #                         cadena.append(k[1])
-        #                         break
-                # if i ==j[0]:
-                #     for k in listaFinal:
-                #         if j[2]==k[0]:
-                #             cadena2+='<div id="'+j[2]+'>'
-                #             cadena2+=(k[1])
-                #             if 
-                #             cadena2+="</div>"
-                #             cadena.append(cadena2)
-        # for i in cadena:
-        #     print(i)                   
-        # for i in controles_html:
-        #     print(i[1])
 
 
         r = open("archivo.html","w+",encoding="utf-8")
@@ -1651,9 +1663,9 @@ class Analizador:
         cadena+= "  <head>\n"
         cadena+='<link href="prueba.css" rel="stylesheet"'
         cadena+= ' type="text/css" />'
-        # cadena+="       <meta charset=\"UTF-8\">\n"
-        # cadena+="       <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n"
-        # cadena+="       <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+        cadena+="       <meta charset=\"UTF-8\">\n"
+        cadena+="       <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n"
+        cadena+="       <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
         cadena+="</head>\n"
         cadena += "    <body>\n"
         for i in controles_list:
